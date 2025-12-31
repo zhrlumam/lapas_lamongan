@@ -1,206 +1,296 @@
 <?php
 include "config/koneksi.php";
 
-// 1. Ambil Kategori untuk Form
-$kategori_query = mysqli_query($conn, "SELECT * FROM kategori_pengaduan ORDER BY nama_kategori ASC");
+function e($string) { return htmlspecialchars($string, ENT_QUOTES, 'UTF-8'); }
 
-// 2. Logika Lacak Berdasarkan Nomor HP / WhatsApp
+$pesan_status = "";
+
+// 1. PROSES SIMPAN
+if (isset($_POST['kirim_pengaduan'])) {
+    $judul    = $_POST['judul_pengaduan'];
+    $nama     = $_POST['nama_pelapor'];
+    $kontak   = preg_replace('/[^0-9]/', '', $_POST['kontak_pelapor']);
+    $email    = $_POST['email_pelapor'] ?? ""; 
+    $kategori = (int)$_POST['kategori_id'];
+    $isi      = $_POST['isi_pengaduan'];
+
+    $cek_stmt = $conn->prepare("SELECT id FROM pengaduan WHERE kontak_pelapor = ? AND status != 'Selesai'");
+    $cek_stmt->bind_param("s", $kontak);
+    $cek_stmt->execute();
+    if ($cek_stmt->get_result()->num_rows > 0) {
+        $pesan_status = "pending_ada";
+    } else {
+        $nama_file = "";
+        if (isset($_FILES['bukti_foto']) && $_FILES['bukti_foto']['error'] == 0) {
+            $target_dir = "uploads/";
+            $ext = pathinfo($_FILES["bukti_foto"]["name"], PATHINFO_EXTENSION);
+            $nama_file = "IMG_" . time() . "." . $ext;
+            $target_file = $target_dir . $nama_file;
+            if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png']) && $_FILES["bukti_foto"]["size"] < 2000000) {
+                move_uploaded_file($_FILES["bukti_foto"]["tmp_name"], $target_file);
+            } else { $pesan_status = "error_file"; }
+        }
+
+        if ($pesan_status != "error_file") {
+            $stmt = $conn->prepare("INSERT INTO pengaduan (judul_pengaduan, nama_pelapor, kontak_pelapor, email_pelapor, kategori_id, isi_pengaduan, foto_bukti, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'Masuk', NOW())");
+            $stmt->bind_param("ssssiss", $judul, $nama, $kontak, $email, $kategori, $isi, $nama_file);
+            $pesan_status = ($stmt->execute()) ? "sukses" : "gagal";
+            $stmt->close();
+        }
+    }
+}
+
+// 2. LOGIKA LACAK
 $hasil_list = null;
-
 if (isset($_GET['kontak_lacak'])) {
-    $kontak = mysqli_real_escape_string($conn, $_GET['kontak_lacak']);
-    
-    // Pastikan kolom nomor_tiket dipanggil dalam query
-    $query_list = mysqli_query($conn, "SELECT p.*, k.nama_kategori 
-                                       FROM pengaduan p 
-                                       LEFT JOIN kategori_pengaduan k ON p.kategori_id = k.id 
-                                       WHERE p.kontak_pelapor = '$kontak'
-                                       ORDER BY p.created_at DESC");
-    
+    $kontak_lacak = preg_replace('/[^0-9]/', '', $_GET['kontak_lacak']);
+    $stmt_lacak = $conn->prepare("SELECT p.*, k.nama_kategori FROM pengaduan p LEFT JOIN kategori_pengaduan k ON p.kategori_id = k.id WHERE p.kontak_pelapor = ? ORDER BY p.created_at DESC");
+    $stmt_lacak->bind_param("s", $kontak_lacak);
+    $stmt_lacak->execute();
+    $query_list = $stmt_lacak->get_result();
     $hasil_list = [];
-    while($row = mysqli_fetch_assoc($query_list)) {
-        $id_p = $row['id'];
-        $t_query = mysqli_query($conn, "SELECT t.*, a.nama as nama_admin 
-                                         FROM tanggapan t 
-                                         LEFT JOIN admin a ON t.admin_id = a.id_admin 
-                                         WHERE t.pengaduan_id = '$id_p' 
-                                         ORDER BY t.created_at ASC");
-        
+    while($row = $query_list->fetch_assoc()) {
+        $stmt_t = $conn->prepare("SELECT t.*, a.nama as nama_admin FROM tanggapan t LEFT JOIN admin a ON t.admin_id = a.id_admin WHERE t.pengaduan_id = ? ORDER BY t.created_at ASC");
+        $stmt_t->bind_param("i", $row['id']);
+        $stmt_t->execute();
+        $res_t = $stmt_t->get_result();
         $tanggapan = [];
-        while($t = mysqli_fetch_assoc($t_query)) { $tanggapan[] = $t; }
+        while($t = $res_t->fetch_assoc()) { $tanggapan[] = $t; }
         $row['list_tanggapan'] = $tanggapan;
         $hasil_list[] = $row;
     }
 }
+$kategori_query = mysqli_query($conn, "SELECT * FROM kategori_pengaduan ORDER BY nama_kategori ASC");
 ?>
 
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lapas Kelas IIB Lamongan - Portal Pengaduan</title>
-    <link rel="icon" type="image/png" href="assets/images/logo_imigrasi.png">
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Portal Pengaduan - Lapas Lamongan</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
-            theme: { 
-                extend: { 
-                    colors: { 
-                        imipas: { blue: '#07213D', gold: '#EEBF63' } 
-                    },
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+            theme: {
+                extend: {
+                    colors: {
+                        'lapas-blue': '#0F172A',
+                        'lapas-gold': '#E2B93B',
                     }
-                } 
+                }
             }
         }
     </script>
     <style>
-        body { background-color: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); }
+        .input-focus:focus { border-color: #E2B93B; background-color: white; outline: none; }
     </style>
 </head>
-<body class="pb-20">
+<body class="bg-[#F8FAFC] antialiased pb-20">
+    <div class="bg-white border-b border-slate-200 py-2 px-4 hidden lg:block">
+        <div class="max-w-7xl mx-auto flex justify-between text-[10px] font-black uppercase tracking-widest text-lapas-blue">
+            <span>Republik Indonesia</span>
+            <span id="currentDate"></span>
+        </div>
+    </div>
 
     <?php include "layout/navbar.php"; ?>
+   
+    <main class="max-w-6xl mx-auto px-4 mt-8">
+        
+        <section class="mb-10">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <?php 
+                $steps = [
+                    ['n' => '1', 't' => 'Isi Form'],
+                    ['n' => '2', 't' => 'Bukti Foto'],
+                    ['n' => '3', 't' => 'Kirim Aduan'],
+                    ['n' => '4', 't' => 'Cek Balasan']
+                ];
+                foreach($steps as $s): ?>
+                <div class="bg-white p-5 rounded-[2rem] border border-slate-100 text-center">
+                    <div class="w-10 h-10 bg-lapas-blue text-lapas-gold rounded-2xl flex items-center justify-center font-black mx-auto mb-3">
+                        <?= $s['n'] ?>
+                    </div>
+                    <p class="text-[10px] font-black text-slate-500 uppercase leading-tight"><?= $s['t'] ?></p>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </section>
 
-    <main class="max-w-6xl mx-auto p-4 mt-8">
-        <div class="mb-10 text-center lg:text-left">
-            <h1 class="text-3xl md:text-4xl font-extrabold text-imipas-blue tracking-tight uppercase">Portal <span class="text-imipas-gold italic">Pengaduan</span></h1>
-            <p class="text-slate-500 font-medium tracking-tight">Lengkapi data di bawah untuk menyampaikan aspirasi atau keluhan Anda.</p>
-        </div>
+        <?php if($pesan_status): ?>
+            <div class="mb-8">
+                <?php if($pesan_status == "sukses"): ?>
+                    <div class="p-4 bg-emerald-500 text-white rounded-2xl flex items-center gap-3 font-bold text-sm">
+                        <i data-lucide="check-circle" class="w-5 h-5"></i> Laporan Berhasil Dikirim ke Sistem
+                    </div>
+                <?php elseif($pesan_status == "pending_ada"): ?>
+                    <div class="p-4 bg-amber-500 text-white rounded-2xl flex items-center gap-3 font-bold text-sm">
+                        <i data-lucide="alert-circle" class="w-5 h-5"></i> Anda Masih Memiliki Laporan Aktif
+                    </div>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            <div class="lg:col-span-6">
-                <form action="proses_pengaduan.php" method="POST" class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200 space-y-6">
-                    <h2 class="text-imipas-blue font-bold text-xs uppercase flex items-center gap-2 border-b pb-4 tracking-[0.2em]">
-                        <i data-lucide="file-text" class="w-4 h-4 text-imipas-gold"></i> Formulir Aduan Resmi
-                    </h2>
-
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Judul Laporan / Pengaduan</label>
-                        <input type="text" name="judul_pengaduan" required class="w-full border-2 border-slate-50 p-4 rounded-2xl text-sm font-bold focus:border-imipas-gold outline-none transition-all" placeholder="Contoh: Keluhan Pelayanan Kunjungan">
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Nama Pelapor</label>
-                            <input type="text" name="nama_pelapor" required class="w-full border-2 border-slate-50 p-4 rounded-2xl text-sm focus:border-imipas-gold outline-none transition-all" placeholder="Nama Lengkap">
+            <div class="lg:col-span-7">
+                <div class="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-200">
+                    <div class="flex items-center gap-4 mb-10">
+                        <div class="p-3 bg-lapas-blue rounded-2xl text-lapas-gold">
+                            <i data-lucide="file-text" class="w-6 h-6"></i>
                         </div>
-                        <div class="space-y-1">
-                            <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">WhatsApp (Aktif)</label>
-                            <input type="text" name="kontak_pelapor" required class="w-full border-2 border-slate-50 p-4 rounded-2xl text-sm focus:border-imipas-gold outline-none transition-all" placeholder="0812xxxx">
+                        <div>
+                            <h2 class="text-xl font-black text-lapas-blue uppercase">Buat Laporan</h2>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Sampaikan Keluhan atau Aspirasi Anda</p>
                         </div>
                     </div>
 
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Alamat Email</label>
-                        <div class="relative">
-                            <i data-lucide="mail" class="absolute left-4 top-4 w-4 h-4 text-slate-300"></i>
-                            <input type="email" name="email_pelapor" required class="w-full border-2 border-slate-50 p-4 pl-12 rounded-2xl text-sm focus:border-imipas-gold outline-none transition-all" placeholder="nama@gmail.com">
+                    <form action="" method="POST" enctype="multipart/form-data" class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Judul Aduan</label>
+                            <input type="text" name="judul_pengaduan" required 
+                                class="w-full bg-slate-50 border-2 border-transparent p-4 rounded-2xl input-focus transition-all text-sm font-bold text-slate-700" 
+                                placeholder="Contoh: Keluhan Fasilitas Ruang Tunggu">
                         </div>
-                    </div>
 
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Kategori Laporan</label>
-                        <select name="kategori_id" required class="w-full border-2 border-slate-50 p-4 rounded-2xl text-sm outline-none bg-slate-50 focus:border-imipas-gold">
-                            <option value="" disabled selected>Pilih kategori...</option>
-                            <?php while($cat = mysqli_fetch_assoc($kategori_query)): ?>
-                                <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['nama_kategori']) ?></option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Nama Pelapor</label>
+                                <input type="text" name="nama_pelapor" required 
+                                    class="w-full bg-slate-50 border-2 border-transparent p-4 rounded-2xl input-focus transition-all text-sm font-bold text-slate-700" 
+                                    placeholder="Nama Sesuai KTP">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">WhatsApp</label>
+                                <input type="tel" name="kontak_pelapor" required 
+                                    class="w-full bg-slate-50 border-2 border-transparent p-4 rounded-2xl input-focus transition-all text-sm font-bold text-slate-700" 
+                                    placeholder="08xxxxxxxxxx">
+                            </div>
+                        </div>
 
-                    <div class="space-y-1">
-                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Detail Aduan</label>
-                        <textarea name="isi_pengaduan" required class="w-full border-2 border-slate-50 p-4 rounded-2xl text-sm h-32 focus:border-imipas-gold outline-none" placeholder="Ceritakan detail kejadian atau keluhan Anda..."></textarea>
-                    </div>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Email (Gmail)</label>
+                            <input type="email" name="email_pelapor" required 
+                                class="w-full bg-slate-50 border-2 border-transparent p-4 rounded-2xl input-focus transition-all text-sm font-bold text-slate-700" 
+                                placeholder="alamat@gmail.com">
+                        </div>
 
-                    <button type="submit" name="kirim_pengaduan" class="w-full bg-imipas-blue text-imipas-gold font-black py-5 rounded-2xl shadow-xl shadow-blue-100 uppercase tracking-[0.2em] text-[10px] hover:bg-slate-800 transition-all flex items-center justify-center gap-3">
-                        <i data-lucide="send-horizontal" class="w-4 h-4"></i> Kirim Aduan Sekarang
-                    </button>
-                </form>
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Kategori Layanan</label>
+                            <select name="kategori_id" required 
+                                class="w-full bg-slate-50 border-2 border-transparent p-4 rounded-2xl input-focus transition-all text-sm font-bold text-slate-700">
+                                <option value="">-- Pilih Kategori --</option>
+                                <?php while($k = mysqli_fetch_assoc($kategori_query)): ?>
+                                    <option value="<?= $k['id'] ?>"><?= e($k['nama_kategori']) ?></option>
+                                <?php endwhile; ?>
+                            </select>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Detail Aduan</label>
+                            <textarea name="isi_pengaduan" required 
+                                class="w-full bg-slate-50 border-2 border-transparent p-4 rounded-2xl input-focus transition-all text-sm font-bold text-slate-700 h-32" 
+                                placeholder="Tuliskan laporan Anda secara lengkap..."></textarea>
+                        </div>
+
+                        <div class="p-6 border-2 border-dashed border-slate-200 rounded-[2rem] bg-slate-50/50 flex flex-col items-center justify-center text-center">
+                            <i data-lucide="image-plus" class="w-8 h-8 text-slate-300 mb-2"></i>
+                            <label class="text-[10px] font-black uppercase text-slate-500 mb-3">Lampiran Foto Bukti</label>
+                            <input type="file" name="bukti_foto" class="text-[10px] file:bg-lapas-blue file:text-lapas-gold file:rounded-full file:px-6 file:py-2 file:border-none file:font-black file:uppercase">
+                        </div>
+
+                        <button type="submit" name="kirim_pengaduan" 
+                            class="w-full bg-lapas-blue text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-slate-800 transition-all flex items-center justify-center gap-3 text-xs">
+                            <i data-lucide="send" class="w-4 h-4 text-lapas-gold"></i> Kirim Laporan
+                        </button>
+                    </form>
+                </div>
             </div>
 
-            <div class="lg:col-span-6 space-y-6">
-                <div class="bg-imipas-blue p-8 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden">
-                    <h2 class="font-bold text-[10px] uppercase flex items-center gap-2 mb-6 text-imipas-gold tracking-[0.2em]">
-                        <i data-lucide="search" class="w-4 h-4"></i> Lacak Balasan via WhatsApp Yang Sudah Terdaftar
-                    </h2>
-                    <form action="" method="GET" class="flex gap-2">
-                        <input type="text" name="kontak_lacak" value="<?= isset($_GET['kontak_lacak']) ? htmlspecialchars($_GET['kontak_lacak']) : '' ?>" 
-                               placeholder="Masukkan Nomor WhatsApp Anda" required 
-                               class="flex-1 p-4 rounded-2xl text-sm bg-white/10 border border-white/20 outline-none text-white placeholder:text-white/30 font-bold focus:bg-white/20 transition-all">
-                        <button type="submit" class="bg-imipas-gold text-imipas-blue p-4 rounded-2xl hover:bg-white transition-all">
-                            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            <div class="lg:col-span-5 space-y-6">
+                <div class="bg-lapas-blue p-8 rounded-[2.5rem] text-white relative overflow-hidden">
+                    <i data-lucide="search" class="absolute -right-6 -top-6 w-32 h-32 opacity-10 text-lapas-gold"></i>
+                    <h3 class="text-xs font-black uppercase tracking-[0.2em] text-lapas-gold mb-6 flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i> Lacak Laporan
+                    </h3>
+                    <form action="" method="GET" class="space-y-4">
+                        <input type="text" name="kontak_lacak" placeholder="Masukkan WhatsApp" 
+                            class="w-full p-4 rounded-2xl bg-white/10 border border-white/20 outline-none text-white placeholder:text-white/40 font-bold focus:bg-white/20 transition-all"
+                            value="<?= isset($_GET['kontak_lacak']) ? e($_GET['kontak_lacak']) : '' ?>">
+                        <button class="w-full bg-lapas-gold text-lapas-blue p-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] transition-all">
+                            Cek Progres Sekarang
                         </button>
                     </form>
                 </div>
 
                 <?php if ($hasil_list !== null): ?>
                     <div class="space-y-4">
-                        <?php if (count($hasil_list) > 0): ?>
-                            <?php foreach ($hasil_list as $aduan): ?>
-                            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-200">
-                                <div class="flex justify-between items-start mb-4">
-                                    <span class="px-3 py-1 bg-slate-100 text-slate-500 rounded-lg text-[9px] font-black uppercase tracking-widest italic border border-slate-200">
-                                        ID: <?= htmlspecialchars(str_replace('TIX-', '', ($aduan['nomor_tiket'] ?? 'N/A'))) ?>
-                                    </span>
-                                    <?php 
-                                        $s = $aduan['status'] ?? 'Masuk';
-                                        $c = ($s == 'Masuk') ? 'bg-red-100 text-red-600 border-red-200' : (($s == 'Sedang Diproses') ? 'bg-amber-100 text-amber-600 border-amber-200' : 'bg-green-100 text-green-600 border-green-200');
-                                    ?>
-                                    <span class="px-3 py-1 rounded-lg text-[9px] font-black uppercase border <?= $c ?>"><?= $s ?></span>
-                                </div>
-                                
-                                <h3 class="font-black text-imipas-blue text-sm mb-1 uppercase tracking-tight"><?= htmlspecialchars($aduan['judul_pengaduan']) ?></h3>
-                                <p class="text-[10px] text-slate-400 font-bold mb-4 uppercase"><?= htmlspecialchars($aduan['nama_kategori']) ?></p>
-                                
-                                <div class="bg-slate-50/50 p-4 rounded-2xl border border-dashed border-slate-200 mb-4">
-                                    <p class="text-xs text-slate-500 italic leading-relaxed">"<?= htmlspecialchars($aduan['isi_pengaduan']) ?>"</p>
-                                </div>
-
-                                <div class="space-y-3 border-t pt-4">
-                                    <?php if (count($aduan['list_tanggapan']) > 0): ?>
-                                        <?php foreach ($aduan['list_tanggapan'] as $t): ?>
-                                            <div class="bg-blue-50/50 p-4 rounded-2xl border-l-4 border-imipas-blue shadow-sm">
-                                                <p class="text-xs text-slate-700 font-medium">"<?= nl2br(htmlspecialchars($t['isi_tanggapan'])) ?>"</p>
-                                                <p class="mt-3 text-[9px] text-slate-400 font-bold uppercase">
-                                                    Petugas: <?= htmlspecialchars($t['nama_admin'] ?? 'Admin') ?> • <?= date('d M Y', strtotime($t['created_at'])) ?>
-                                                </p>
-                                            </div>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <div class="p-4 bg-amber-50 border border-amber-100 rounded-2xl flex items-center gap-3">
-                                            <i data-lucide="clock" class="w-4 h-4 text-amber-500"></i>
-                                            <p class="text-[10px] text-amber-700 font-bold uppercase">Menunggu Respon Petugas...</p>
-                                        </div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="text-center py-10 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200">
-                                <i data-lucide="user-x" class="w-10 h-10 text-slate-300 mx-auto mb-3"></i>
-                                <p class="text-xs text-slate-400 font-bold uppercase tracking-widest">Nomor WhatsApp Tidak Terdaftar</p>
+                        <?php if(empty($hasil_list)): ?>
+                            <div class="p-8 text-center bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Data Tidak Ditemukan</p>
                             </div>
                         <?php endif; ?>
-                    </div>
-                <?php else: ?>
-                    <div class="text-center py-20 bg-slate-100/50 rounded-[2.5rem] border-2 border-dashed border-slate-200">
-                        <i data-lucide="message-square" class="w-12 h-12 text-slate-300 mx-auto mb-4"></i>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest px-10">Masukkan nomor WhatsApp untuk melihat riwayat aduan & balasan petugas</p>
+
+                        <?php foreach($hasil_list as $aduan): ?>
+                            <div class="bg-white p-6 rounded-[2rem] border border-slate-200 border-l-4 border-l-lapas-gold">
+                                <div class="flex justify-between items-start mb-4">
+                                    <span class="px-3 py-1 bg-slate-100 rounded-lg text-[9px] font-black text-slate-500 uppercase tracking-tighter">
+                                        <?= date('d M Y', strtotime($aduan['created_at'])) ?>
+                                    </span>
+                                    <span class="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter 
+                                        <?= ($aduan['status'] == 'Selesai') ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600' ?>">
+                                        <?= $aduan['status'] ?>
+                                    </span>
+                                </div>
+                                <h4 class="font-black text-lapas-blue uppercase text-xs mb-2 leading-tight"><?= e($aduan['judul_pengaduan']) ?></h4>
+                                <p class="text-[11px] text-slate-500 line-clamp-2 mb-4 italic">"<?= e($aduan['isi_pengaduan']) ?>"</p>
+                                
+                                <?php if($aduan['foto_bukti']): ?>
+                                    <a href="uploads/<?= $aduan['foto_bukti'] ?>" target="_blank" 
+                                        class="inline-flex items-center gap-2 text-[9px] font-black text-lapas-blue bg-slate-100 px-3 py-2 rounded-xl mb-4 hover:bg-lapas-gold transition-colors uppercase">
+                                        <i data-lucide="image" class="w-3 h-3"></i> Lihat Lampiran
+                                    </a>
+                                <?php endif; ?>
+
+                                <?php if(!empty($aduan['list_tanggapan'])): ?>
+                                    <div class="mt-4 pt-4 border-t border-dashed border-slate-100 space-y-3">
+                                        <?php foreach($aduan['list_tanggapan'] as $t): ?>
+                                            <div class="bg-slate-50 p-4 rounded-2xl relative overflow-hidden">
+                                                <div class="absolute left-0 top-0 w-1 h-full bg-lapas-gold"></div>
+                                                <p class="text-[11px] font-bold text-slate-700 leading-relaxed"><?= nl2br(e($t['isi_tanggapan'])) ?></p>
+                                                <div class="mt-3 flex items-center justify-between opacity-50">
+                                                    <span class="text-[9px] font-black text-lapas-blue uppercase">Admin: <?= e($t['nama_admin']) ?></span>
+                                                    <span class="text-[9px] font-bold"><?= date('d/m/y', strtotime($t['created_at'])) ?></span>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="mt-4 pt-4 border-t border-dashed border-slate-100 flex items-center gap-2">
+                                        <div class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+                                        <p class="text-[9px] font-black text-amber-500 uppercase italic">Sedang Menunggu Tanggapan Petugas</p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
             </div>
         </div>
     </main>
 
-    <script> lucide.createIcons(); </script>
+    <script>
+        lucide.createIcons();
+        function updateDate() {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').innerText = new Date().toLocaleDateString('id-ID', options);
+        }
+        updateDate();
+    </script>
 </body>
 </html>

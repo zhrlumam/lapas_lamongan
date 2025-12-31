@@ -2,10 +2,14 @@
 session_start();
 include "../config/koneksi.php";
 
-if (!isset($_SESSION['admin'])) { header("Location: login.php"); exit; }
+// 1. CEK LOGIN
+if (!isset($_SESSION['admin'])) {
+    header("Location: login.php");
+    exit;
+}
 
-$id = mysqli_real_escape_string($conn, $_GET['id']);
-$admin_id = $_SESSION['admin']['id_admin']; 
+// Ambil data session (berupa string username)
+$admin_name = $_SESSION['admin'];
 
 // Ambil data pengaduan beserta kategori
 $query = "SELECT p.*, k.nama_kategori 
@@ -16,7 +20,7 @@ $res = mysqli_query($conn, $query);
 $data = mysqli_fetch_assoc($res);
 
 if (!$data) {
-    header("Location: kelola_pengaduan.php");
+    header("Location: admin_balas.php");
     exit;
 }
 
