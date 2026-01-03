@@ -1,18 +1,35 @@
 <?php
-// 1. KEAMANAN: Header Proteksi
+// 1. SETTING TIMEZONE & ERROR REPORTING (Sangat penting di hosting)
+date_default_timezone_set('Asia/Jakarta');
+error_reporting(E_ALL);
+ini_set('display_errors', 0); // Set ke 0 saat sudah online agar tidak membocorkan struktur folder
+
+// 2. KEAMANAN: Header Proteksi
 header("X-XSS-Protection: 1; mode=block");
 header("X-Content-Type-Options: nosniff");
 header("X-Frame-Options: SAMEORIGIN");
 
+// 3. KONEKSI DATABASE
 include "config/koneksi.php"; 
 
-if (!$conn) {
-    die("Koneksi gagal: " . mysqli_connect_error());
+/** * SINKRONISASI KONEKSI:
+ * Jika di config/koneksi.php Anda menggunakan PDO ($pdo),
+ * namun di file ini Anda menggunakan gaya MySQLi ($conn), 
+ * kita buat jalur MySQLi tambahan agar kode di bawah tidak error.
+ */
+if (!isset($conn) && isset($pdo)) {
+    // Ambil data dari variabel yang ada di koneksi.php (sesuaikan nama variabelnya)
+    // Asumsi: $host, $user, $pass, $db sudah didefinisikan di koneksi.php
+    $conn = new mysqli($host, $user, $pass, $db);
+}
+
+// Cek Koneksi Final
+if (!$conn || $conn->connect_error) {
+    die("Sistem sedang pemeliharaan. Silakan coba beberapa saat lagi.");
 }
 
 /**
- * 2. PERBAIKAN KEAMANAN: Menggunakan Prepared Statements 
- * Untuk mencegah SQL Injection meskipun hanya query SELECT sederhana.
+ * 4. PERBAIKAN KEAMANAN: Menggunakan Prepared Statements 
  */
 $stmt = $conn->prepare("SELECT * FROM profil_lapas LIMIT 1");
 $stmt->execute();
@@ -34,10 +51,10 @@ if ($result && $result->num_rows > 0) {
 }
 
 /**
- * 3. FUNGSI HELPER: Escaping Output (Mencegah XSS)
+ * 5. FUNGSI HELPER: Escaping Output (Mencegah XSS)
  */
 function e($string) {
-    return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars($string ?? '', ENT_QUOTES, 'UTF-8');
 }
 ?>
 <!DOCTYPE html>

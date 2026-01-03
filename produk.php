@@ -1,5 +1,26 @@
 <?php
+// 0. SET TIMEZONE & ERROR HANDLING
+date_default_timezone_set('Asia/Jakarta');
+error_reporting(E_ALL);
+ini_set('display_errors', 0); // Sembunyikan error dari publik saat hosting
+
+// 1. KEAMANAN: Header Proteksi
+header("X-XSS-Protection: 1; mode=block");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
+
 include "config/koneksi.php";
+
+/** * SINKRONISASI KONEKSI:
+ * Menjamin variabel $conn tetap tersedia baik menggunakan mysqli atau pdo di config
+ */
+if (!isset($conn) && isset($pdo)) {
+    $conn = new mysqli($host, $user, $pass, $db);
+}
+
+if (!$conn || $conn->connect_error) {
+    die("Layanan sedang dalam pemeliharaan.");
+}
 
 /**
  * 1. PENGATURAN FILTER & KEAMANAN
@@ -27,7 +48,7 @@ $total_data = $stmt_total->get_result()->fetch_assoc()['total'];
 $total_halaman = ceil($total_data / $limit);
 
 /**
- * 4. AMBIL DAFTAR KATEGORI UNTUK FILTER (Statis di atas)
+ * 4. AMBIL DAFTAR KATEGORI UNTUK FILTER
  */
 $list_kategori = mysqli_query($conn, "SELECT DISTINCT kategori FROM produk ORDER BY kategori ASC");
 
@@ -48,7 +69,7 @@ $produk = $stmt_produk->get_result();
  * 6. HELPER KEAMANAN (XSS Protection)
  */
 function e($string) {
-    return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars($string ?? '', ENT_QUOTES, 'UTF-8');
 }
 ?>
 
@@ -100,7 +121,7 @@ function e($string) {
         </div>
     </div>
 
-    <?php include "layout/navbar.php"; ?>
+    <?php if(file_exists("layout/navbar.php")) { include "layout/navbar.php"; } ?>
 
     <section class="hero-section pb-20 bg-imipas-blue text-white px-6 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-64 h-64 bg-imipas-gold/10 rounded-full -mr-32 -mt-32 blur-3xl"></div>
@@ -200,13 +221,12 @@ function e($string) {
         <?php endif; ?>
     </main>
 
-    <?php include "layout/footer.php"; ?>
+    <?php if(file_exists("layout/footer.php")) { include "layout/footer.php"; } ?>
 
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         AOS.init({ duration: 800, once: true });
 
-        // Tanggal Dinamis (Standard Profile)
         const dateEl = document.getElementById('currentDate');
         if (dateEl) {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };

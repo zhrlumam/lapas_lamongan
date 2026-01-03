@@ -1,4 +1,9 @@
 <?php
+// 0. SET TIMEZONE & ERROR HANDLING
+date_default_timezone_set('Asia/Jakarta');
+error_reporting(E_ALL);
+ini_set('display_errors', 0); // Sembunyikan error teknis dari publik
+
 // 1. KEAMANAN: Header Proteksi
 header("X-XSS-Protection: 1; mode=block");
 header("X-Content-Type-Options: nosniff");
@@ -6,9 +11,16 @@ header("X-Frame-Options: SAMEORIGIN");
 
 include "config/koneksi.php";
 
+/** * SINKRONISASI KONEKSI:
+ * Menjamin variabel $conn tetap jalan meskipun di config menggunakan PDO atau MySQLi
+ */
+if (!isset($conn) && isset($pdo)) {
+    $conn = new mysqli($host, $user, $pass, $db);
+}
+
 // Fungsi Helper Keamanan
 function e($string) {
-    return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars($string ?? '', ENT_QUOTES, 'UTF-8');
 }
 
 // 2. Validasi ID dengan Prepared Statement (Mencegah SQL Injection)
@@ -30,7 +42,8 @@ if (!$data) {
 }
 
 // 3. Persiapan Data
-$url_berita = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? "https" : "http";
+$url_berita = $protocol . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 $judul_berita = e($data['judul']);
 
 // Berita Lainnya (Sidebar)
@@ -49,7 +62,7 @@ $berita_lain = $stmt_lain->get_result();
     
     <meta property="og:title" content="<?= $judul_berita; ?>">
     <meta property="og:description" content="Baca berita selengkapnya di website resmi Lapas Kelas IIB Lamongan.">
-    <meta property="og:image" content="<?= (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]" ?>/assets/images/<?= e($data['gambar']); ?>">
+    <meta property="og:image" content="<?= $protocol . "://$_SERVER[HTTP_HOST]" ?>/uploads/<?= e($data['gambar']); ?>">
     <meta property="og:url" content="<?= $url_berita; ?>">
 
     <link rel="icon" type="image/png" href="assets/images/logo_imigrasi.png">
@@ -112,7 +125,7 @@ $berita_lain = $stmt_lain->get_result();
                         Admin Humas
                     </div>
                     <div class="flex items-center gap-3 ml-auto">
-                        <a href="https://api.whatsapp.com/send?text=<?= urlencode($judul_berita . " - " . $url_berita); ?>" target="_blank" class="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white hover:scale-110 transition shadow-sm">
+                        <a href="https://api.whatsapp.com/send?text=<?= urlencode($data['judul'] . " - " . $url_berita); ?>" target="_blank" class="w-8 h-8 flex items-center justify-center rounded-full bg-green-500 text-white hover:scale-110 transition shadow-sm">
                             <i class="fa-brands fa-whatsapp"></i>
                         </a>
                         <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode($url_berita); ?>" target="_blank" class="w-8 h-8 flex items-center justify-center rounded-full bg-blue-600 text-white hover:scale-110 transition shadow-sm">
@@ -125,17 +138,22 @@ $berita_lain = $stmt_lain->get_result();
                 </div>
 
                 <div class="aspect-video w-full overflow-hidden rounded-sm bg-slate-100 mb-10 group">
-                    <img src="assets/images/<?= e($data['gambar']); ?>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="<?= $judul_berita; ?>">
+                    <?php 
+                        // PERBAIKAN: Folder gambar diarahkan ke uploads/ agar sinkron dengan admin
+                        $img_file = "uploads/" . $data['gambar'];
+                        $img_src = (!empty($data['gambar']) && file_exists($img_file)) ? $img_file : "assets/images/default-news.jpg";
+                    ?>
+                    <img src="<?= $img_src ?>" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="<?= $judul_berita; ?>">
                 </div>
 
                 <div class="isi-berita text-slate-700 text-lg leading-relaxed text-justify">
-                    <?= nl2br($data['isi']); ?>
+                    <?= nl2br(e($data['isi'])); ?>
                 </div>
 
                 <div class="mt-16 py-6 border-y border-slate-50 flex flex-col md:flex-row items-center justify-between gap-4">
                     <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Bagikan artikel ini:</span>
                     <div class="flex gap-4">
-                        <a href="https://api.whatsapp.com/send?text=<?= urlencode($judul_berita . " - " . $url_berita); ?>" target="_blank" class="flex items-center gap-2 text-slate-400 hover:text-green-500 transition">
+                        <a href="https://api.whatsapp.com/send?text=<?= urlencode($data['judul'] . " - " . $url_berita); ?>" target="_blank" class="flex items-center gap-2 text-slate-400 hover:text-green-500 transition">
                             <i class="fa-brands fa-whatsapp text-xl"></i>
                         </a>
                         <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode($url_berita); ?>" target="_blank" class="flex items-center gap-2 text-slate-400 hover:text-blue-600 transition">
@@ -186,16 +204,14 @@ $berita_lain = $stmt_lain->get_result();
     <?php if(file_exists("layout/footer.php")) { include "layout/footer.php"; } ?>
 
     <script>
-        // 1. Logika Tanggal
         const dateElement = document.getElementById('currentDate');
         if(dateElement) {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             dateElement.innerText = new Date().toLocaleDateString('id-ID', options);
         }
 
-        // 2. Fungsi Copy Link
         function copyToClipboard() {
-            const linkBerita = "<?= $url_berita ?>";
+            const linkBerita = window.location.href;
             navigator.clipboard.writeText(linkBerita).then(() => {
                 const msg = document.getElementById('copyMessage');
                 msg.classList.remove('hidden');

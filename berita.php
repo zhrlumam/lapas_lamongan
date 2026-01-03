@@ -1,4 +1,9 @@
 <?php
+// 0. SET TIMEZONE & ERROR HANDLING (Sangat penting untuk hosting)
+date_default_timezone_set('Asia/Jakarta');
+error_reporting(E_ALL);
+ini_set('display_errors', 0); // Sembunyikan error dari publik saat hosting
+
 // 1. KEAMANAN: Header Proteksi
 header("X-XSS-Protection: 1; mode=block");
 header("X-Content-Type-Options: nosniff");
@@ -6,13 +11,20 @@ header("X-Frame-Options: SAMEORIGIN");
 
 include "config/koneksi.php"; 
 
-if (!$conn) {
-    die("Koneksi Database Gagal: " . mysqli_connect_error());
+/** * SINKRONISASI KONEKSI:
+ * Memastikan variabel $conn tetap tersedia baik hosting menggunakan mysqli atau pdo
+ */
+if (!isset($conn) && isset($pdo)) {
+    $conn = new mysqli($host, $user, $pass, $db);
+}
+
+if (!$conn || $conn->connect_error) {
+    die("Layanan sedang dalam pemeliharaan.");
 }
 
 // 2. FUNGSI HELPER KEAMANAN (Mencegah XSS)
 function e($string) {
-    return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars($string ?? '', ENT_QUOTES, 'UTF-8');
 }
 
 // 3. AMBIL DATA INFORMASI 
@@ -23,10 +35,12 @@ $limit = 6;
 $halaman = (isset($_GET['page']) && is_numeric($_GET['page']) && $_GET['page'] > 0) ? (int)$_GET['page'] : 1;
 $offset = ($halaman - 1) * $limit;
 
+// Menghitung total data untuk pagination
 $total_query = mysqli_query($conn, "SELECT COUNT(*) AS total FROM berita");
 $total_data = mysqli_fetch_assoc($total_query)['total'];
 $total_halaman = ceil($total_data / $limit);
 
+// Query berita dengan Prepared Statement
 $stmt = $conn->prepare("SELECT id_berita, judul, gambar, tanggal, isi FROM berita ORDER BY tanggal DESC LIMIT ? OFFSET ?");
 $stmt->bind_param("ii", $limit, $offset);
 $stmt->execute();
@@ -68,11 +82,12 @@ $berita = $stmt->get_result();
 
 <body class="bg-slate-50 text-slate-900 antialiased">
     
-   <div class="bg-imipas-platinum border-b border-slate-200 py-2 px-4 hidden md:block">
-    <div class="max-w-7xl mx-auto flex justify-between text-[10px] font-bold uppercase tracking-widest text-imipas-blue">
-        <span>Republik Indonesia</span>
-        <span id="currentDate"></span> </div>
-</div>
+    <div class="bg-imipas-platinum border-b border-slate-200 py-2 px-4 hidden md:block">
+        <div class="max-w-7xl mx-auto flex justify-between text-[10px] font-bold uppercase tracking-widest text-imipas-blue">
+            <span>Republik Indonesia</span>
+            <span id="currentDate"></span> 
+        </div>
+    </div>
 
     <?php if(file_exists("layout/navbar.php")) { include "layout/navbar.php"; } ?>
 
@@ -107,57 +122,60 @@ $berita = $stmt->get_result();
         </div>
     </section>
 
- <section class="py-12 px-4 max-w-7xl mx-auto">
-    <div class="flex items-center justify-between mb-12" data-aos="fade-up">
-        <h2 class="text-2xl font-bold uppercase text-imipas-blue">Berita <span class="text-imipas-gold">Terkini</span></h2>
-        <div class="h-[1px] flex-grow ml-6 bg-slate-200 hidden md:block"></div>
-    </div>
+    <section class="py-12 px-4 max-w-7xl mx-auto">
+        <div class="flex items-center justify-between mb-12" data-aos="fade-up">
+            <h2 class="text-2xl font-bold uppercase text-imipas-blue">Berita <span class="text-imipas-gold">Terkini</span></h2>
+            <div class="h-[1px] flex-grow ml-6 bg-slate-200 hidden md:block"></div>
+        </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        <?php if ($berita->num_rows > 0): ?>
-            <?php while ($row = $berita->fetch_assoc()): 
-                $gambarPath = "assets/images/" . $row['gambar'];
-                $gambar = (!empty($row['gambar']) && file_exists($gambarPath)) ? $gambarPath : "assets/images/default-news.jpg";
-                $linkBerita = "detail_berita.php?id=" . (int)$row['id_berita'];
-            ?>
-            <article class="group bg-white flex flex-col border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 rounded-sm overflow-hidden relative" data-aos="fade-up">
-                
-                <a href="<?= $linkBerita ?>" class="absolute inset-0 z-10" aria-label="Baca selengkapnya tentang <?= e($row['judul']) ?>"></a>
-
-                <div class="aspect-video overflow-hidden bg-slate-200 relative">
-                    <img src="<?= e($gambar) ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" alt="Berita">
-                </div>
-                
-                <div class="p-7 flex flex-col flex-grow">
-                    <div class="flex items-center gap-2 mb-3">
-                        <i class="fa-regular fa-calendar text-imipas-gold text-[10px]"></i>
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
-                            <?= date('d M Y', strtotime($row['tanggal'])) ?>
-                        </span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <?php if ($berita->num_rows > 0): ?>
+                <?php while ($row = $berita->fetch_assoc()): 
+                    // PERBAIKAN: Jalur gambar diubah ke folder uploads/ agar sinkron dengan admin
+                    $gambarPath = "uploads/" . $row['gambar'];
+                    $gambar = (!empty($row['gambar']) && file_exists($gambarPath)) ? $gambarPath : "assets/images/default-news.jpg";
+                    $linkBerita = "detail_berita.php?id=" . (int)$row['id_berita'];
+                ?>
+                <article class="group bg-white flex flex-col border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 rounded-sm overflow-hidden relative" data-aos="fade-up">
+                    <a href="<?= $linkBerita ?>" class="absolute inset-0 z-10" aria-label="Baca selengkapnya tentang <?= e($row['judul']) ?>"></a>
+                    <div class="aspect-video overflow-hidden bg-slate-200 relative">
+                        <img src="<?= e($gambar) ?>" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" alt="Berita">
                     </div>
-                    
-                    <h4 class="font-bold text-base text-imipas-blue group-hover:text-imipas-gold transition-colors duration-300 mb-4 line-clamp-2 uppercase leading-snug">
-                        <?= e($row['judul']); ?>
-                    </h4>
-
-                    <p class="text-slate-500 text-[11px] leading-relaxed mb-6 line-clamp-2">
-                        <?= e(substr(strip_tags($row['isi']), 0, 100)) . '...'; ?>
-                    </p>
-
-                    <div class="mt-auto pt-2 text-[10px] font-bold uppercase text-imipas-blue flex items-center gap-2 group-hover:text-imipas-gold transition-all">
-                        Baca Selengkapnya 
-                        <i class="fa-solid fa-arrow-right text-[8px] transform group-hover:translate-x-1 transition-transform"></i>
+                    <div class="p-7 flex flex-col flex-grow">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i class="fa-regular fa-calendar text-imipas-gold text-[10px]"></i>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">
+                                <?= date('d M Y', strtotime($row['tanggal'])) ?>
+                            </span>
+                        </div>
+                        <h4 class="font-bold text-base text-imipas-blue group-hover:text-imipas-gold transition-colors duration-300 mb-4 line-clamp-2 uppercase leading-snug">
+                            <?= e($row['judul']); ?>
+                        </h4>
+                        <p class="text-slate-500 text-[11px] leading-relaxed mb-6 line-clamp-2">
+                            <?= e(substr(strip_tags($row['isi']), 0, 100)) . '...'; ?>
+                        </p>
+                        <div class="mt-auto pt-2 text-[10px] font-bold uppercase text-imipas-blue flex items-center gap-2 group-hover:text-imipas-gold transition-all">
+                            Baca Selengkapnya 
+                            <i class="fa-solid fa-arrow-right text-[8px] transform group-hover:translate-x-1 transition-transform"></i>
+                        </div>
                     </div>
-                </div>
-            </article>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <div class="col-span-full py-20 text-center text-slate-400 italic">Belum ada berita yang diterbitkan.</div>
+                </article>
+                <?php endwhile; ?>
+            <?php else: ?>
+                <div class="col-span-full py-20 text-center text-slate-400 italic">Belum ada berita yang diterbitkan.</div>
+            <?php endif; ?>
+        </div>
+
+        <?php if ($total_halaman > 1): ?>
+        <div class="mt-16 flex justify-center gap-2">
+            <?php for ($i = 1; $i <= $total_halaman; $i++): ?>
+                <a href="?page=<?= $i ?>" class="w-10 h-10 flex items-center justify-center font-bold text-[10px] <?= ($halaman == $i) ? 'bg-imipas-gold text-imipas-blue' : 'bg-white text-imipas-blue border border-slate-200 hover:bg-slate-50' ?> transition-colors shadow-sm">
+                    <?= $i ?>
+                </a>
+            <?php endfor; ?>
+        </div>
         <?php endif; ?>
-    </div>
-    
-    ...
-</section>
+    </section>
 
     <?php if(file_exists("layout/footer.php")) { include "layout/footer.php"; } ?>
 
@@ -168,29 +186,24 @@ $berita = $stmt->get_result();
             once: true,
             offset: 100
         });
-        
         window.addEventListener('load', function() {
             AOS.refresh();
         });
-    </script>
-    <script>
-    function updateDate() {
-        const dateElement = document.getElementById('currentDate');
-        if (dateElement) {
-            const sekarang = new Date();
-            const opsi = { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            };
-            // Menggunakan locale Indonesia (id-ID)
-            dateElement.innerText = sekarang.toLocaleDateString('id-ID', opsi);
+        
+        function updateDate() {
+            const dateElement = document.getElementById('currentDate');
+            if (dateElement) {
+                const sekarang = new Date();
+                const opsi = { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                };
+                dateElement.innerText = sekarang.toLocaleDateString('id-ID', opsi);
+            }
         }
-    }
-
-    // Jalankan fungsi saat halaman dimuat
-    document.addEventListener('DOMContentLoaded', updateDate);
-</script>
+        document.addEventListener('DOMContentLoaded', updateDate);
+    </script>
 </body>
 </html>

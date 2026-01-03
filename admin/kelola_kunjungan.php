@@ -2,208 +2,297 @@
 session_start();
 include "../config/koneksi.php";
 
-if (!isset($_SESSION['admin'])) {
-    header("Location: login.php");
-    exit;
+// Keamanan: Cek Login
+if (!isset($_SESSION['admin_id'])) { 
+    header("Location: index.php"); 
+    exit; 
 }
 
-// --- LOGIKA HAPUS SEMUA DATA ---
+$admin_name = $_SESSION['nama'] ?? 'Admin';
+
+// --- LOGIKA FILTER ---
+$tgl_mulai = $_GET['tgl_mulai'] ?? '';
+$tgl_selesai = $_GET['tgl_selesai'] ?? '';
+$search = $_GET['search'] ?? '';
+
+// --- LOGIKA HAPUS SEMUA ---
 if (isset($_GET['action']) && $_GET['action'] == 'deleteAll') {
-    // Menghapus data detail (pengikut) terlebih dahulu karena relasi tabel
-    mysqli_query($conn, "DELETE FROM kunjungan_pengunjung");
-    $deleteAll = mysqli_query($conn, "DELETE FROM kunjungan");
-    
-    if ($deleteAll) {
-        $_SESSION['alert'] = [
-            'type' => 'success', 
-            'title' => 'Database Bersih!', 
-            'msg' => 'Semua data kunjungan dan pengikut berhasil dihapus.'
-        ];
+    try {
+        $pdo->beginTransaction();
+        $pdo->query("DELETE FROM kunjungan_pengunjung");
+        $pdo->query("DELETE FROM kunjungan");
+        $pdo->commit();
+        $_SESSION['alert'] = ['type' => 'success', 'title' => 'BERSIH!', 'msg' => 'Semua data kunjungan telah dikosongkan.'];
+    } catch (Exception $e) { 
+        $pdo->rollBack(); 
+        $_SESSION['alert'] = ['type' => 'error', 'title' => 'GAGAL!', 'msg' => 'Terjadi kesalahan sistem.'];
     }
-    header("Location: " . $_SERVER['PHP_SELF']);
-    exit;
+    header("Location: kelola_kunjungan.php"); exit;
 }
 
-// --- LOGIKA HAPUS PER BARIS ---
+// --- LOGIKA HAPUS SATUAN ---
 if (isset($_GET['hapus'])) {
-    $id_hapus = mysqli_real_escape_string($conn, $_GET['hapus']);
-    mysqli_query($conn, "DELETE FROM kunjungan_pengunjung WHERE kunjungan_id = '$id_hapus'");
-    $delete = mysqli_query($conn, "DELETE FROM kunjungan WHERE id = '$id_hapus'");
-    
-    if ($delete) {
-        $_SESSION['alert'] = [
-            'type' => 'success', 
-            'title' => 'Terhapus!', 
-            'msg' => 'Data kunjungan berhasil dihapus.'
-        ];
+    $id_hapus = (int)$_GET['hapus'];
+    try {
+        $pdo->beginTransaction();
+        $pdo->prepare("DELETE FROM kunjungan_pengunjung WHERE kunjungan_id = ?")->execute([$id_hapus]);
+        $pdo->prepare("DELETE FROM kunjungan WHERE id = ?")->execute([$id_hapus]);
+        $pdo->commit();
+        $_SESSION['alert'] = ['type' => 'success', 'title' => 'TERHAPUS!', 'msg' => 'Data antrean berhasil dihapus.'];
+    } catch (Exception $e) { 
+        $pdo->rollBack(); 
     }
-    header("Location: " . $_SERVER['PHP_SELF']);
-    exit;
+    header("Location: kelola_kunjungan.php"); exit;
 }
 
-// --- LOGIKA PENCARIAN ---
-$search = isset($_GET['search']) ? mysqli_real_escape_string($conn, $_GET['search']) : '';
-$where_clause = "";
+// --- QUERY DINAMIS ---
+$query_str = "SELECT * FROM kunjungan WHERE 1=1";
+$params = [];
+
+if (!empty($tgl_mulai) && !empty($tgl_selesai)) {
+    $query_str .= " AND tanggal_kunjungan BETWEEN ? AND ?";
+    $params[] = $tgl_mulai;
+    $params[] = $tgl_selesai;
+}
 
 if (!empty($search)) {
-    $where_clause = "WHERE k.nama_wbp LIKE '%$search%' 
-                     OR k.no_antrean LIKE '%$search%'
-                     OR k.id IN (SELECT kunjungan_id FROM kunjungan_pengunjung WHERE nik_pengunjung LIKE '%$search%' OR nama_pengunjung LIKE '%$search%')";
+    $query_str .= " AND (nama_wbp LIKE ? OR no_antrean LIKE ? OR id IN (SELECT kunjungan_id FROM kunjungan_pengunjung WHERE nik_pengunjung LIKE ? OR nama_pengunjung LIKE ?))";
+    $search_param = "%$search%";
+    $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param]);
 }
 
-$query = "SELECT k.* FROM kunjungan k $where_clause ORDER BY k.tanggal_kunjungan DESC, k.id DESC";
-$result = mysqli_query($conn, $query);
+$query_str .= " ORDER BY tanggal_kunjungan DESC, sesi ASC, no_antrean ASC";
+
+$stmt = $pdo->prepare($query_str);
+$stmt->execute($params);
+$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+function tgl_indo($tanggal) {
+    $bulan = [1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    $hari = ['Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'];
+    $ts = strtotime($tanggal);
+    return $hari[date('l', $ts)] . ", " . date('d', $ts) . " " . $bulan[(int)date('m', $ts)] . " " . date('Y', $ts);
+}
 ?>
 
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="refresh" content="60"> 
-    <title>Manajemen Kunjungan | Lapas Lamongan</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Kunjungan | Lapas Lamongan</title>
+    <link rel="icon" type="image/png" href="../assets/images/logo_imigrasi.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .table-container { overflow: auto; height: calc(100vh - 220px); border: 1px solid #e2e8f0; }
-        .sheet-table { border-collapse: separate; border-spacing: 0; width: 100%; }
-        .sheet-table th { 
-            background: #f8fafc; color: #475569; font-size: 10px; font-weight: 800; 
-            padding: 12px; border: 1px solid #cbd5e1; text-transform: uppercase;
-            position: sticky; top: 0; z-index: 20; white-space: nowrap;
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { imipas: '#07213D', dignity: '#EEBF63' },
+                    fontFamily: { titillium: ['Titillium Web', 'sans-serif'] }
+                }
+            }
         }
-        .sheet-table td { padding: 10px 14px; border: 1px solid #e2e8f0; font-size: 11px; white-space: nowrap; }
-        .sticky-col { position: sticky; left: 0; background: white; z-index: 10; border-right: 2px solid #cbd5e1 !important; }
-        .header-pengikut { background-color: #0f172a !important; color: white !important; }
-        tr:hover td { background-color: #f0f9ff !important; cursor: cell; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .spin-icon:hover i { animation: spin 1s linear infinite; }
+    </script>
+    <style>
+        body { font-family: 'Titillium Web', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #07213D; border-radius: 10px; }
+        
+        .table-container { height: calc(100vh - 180px); overflow: auto; }
+        
+        @media (min-width: 1024px) {
+            th { position: sticky; top: 0; z-index: 40; background: #07213D !important; color: #EEBF63; font-weight: 600; }
+            .sticky-left-1 { position: sticky; left: 0; z-index: 30; background: white; }
+            .sticky-left-2 { position: sticky; left: 60px; z-index: 30; background: white; }
+            .sticky-left-3 { position: sticky; left: 130px; z-index: 30; background: white; border-right: 1px solid #e2e8f0 !important; }
+        }
+        
+        .copyable { cursor: pointer; transition: all 0.2s; }
+        .copyable:hover { background-color: #f8fafc !important; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-700">
+<body class="bg-slate-50 h-full overflow-hidden">
 
-<div class="min-h-screen flex">
-    <?php include "layout/menu_admin.php"; ?>
+    <div class="flex h-full overflow-hidden">
+        <?php include 'layout/sidebar.php'; ?>
 
-    <div id="main-content" class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-50">
-        
-        <header class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-30">
-            <div class="flex items-center gap-4">
-                <h1 class="text-lg font-black text-slate-800 uppercase tracking-tight italic">Kunjungan <span class="text-blue-600">Database</span></h1>
-                <form action="" method="GET" class="relative hidden md:block ml-4">
-                    <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Cari NIK atau Nama..." class="bg-slate-100 border border-slate-200 rounded-lg pl-9 pr-4 py-2 text-xs focus:ring-2 focus:ring-blue-400 outline-none w-64 transition-all">
-                    <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                </form>
-            </div>
-
-            <div class="flex items-center gap-2">
-                <button onclick="window.location.reload()" class="spin-icon bg-blue-50 hover:bg-blue-100 text-blue-600 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition border border-blue-200 shadow-sm">
-                    <i class="fa-solid fa-sync-alt"></i> REFRESH
-                </button>
-
-                <button onclick="confirmDeleteAll()" class="bg-white hover:bg-red-50 text-red-600 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition border border-red-200 shadow-sm">
-                    <i class="fa-solid fa-trash-can"></i> HAPUS SEMUA
-                </button>
-                
-                <button onclick="toggleFullscreen()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition border border-slate-200">
-                    <i class="fa-solid fa-expand"></i> FULL SCREEN
-                </button>
-            </div>
-        </header>
-
-        <main class="p-6 flex-1 flex flex-col overflow-hidden">
-            <div class="mb-4 flex justify-between items-end">
-                <div>
-                    <h2 class="text-xl font-bold text-slate-800 uppercase italic">Spreadsheet Terintegrasi</h2>
-                    <p class="text-[11px] text-slate-500 font-medium">Auto-refresh aktif (1 menit). Hasil pencarian: <b><?= $search ? $search : 'Semua Data' ?></b></p>
+        <div class="flex-1 flex flex-col min-w-0 h-full">
+            
+            <header class="bg-white border-b-4 border-dignity shadow-sm h-20 flex items-center justify-between px-6 z-30">
+                <div class="flex items-center gap-4 flex-1">
+                    <button onclick="toggleSidebar()" class="lg:hidden text-imipas p-2 hover:bg-slate-100 rounded-lg">
+                        <i class="fa-solid fa-bars-staggered text-xl"></i>
+                    </button>
+                    
+                    <form action="" method="GET" class="hidden md:flex items-center gap-3 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+                        <div class="flex items-center px-3 border-r border-slate-300">
+                            <i class="fa-solid fa-calendar-day text-imipas text-xs mr-2"></i>
+                            <input type="date" name="tgl_mulai" value="<?= $tgl_mulai ?>" class="bg-transparent text-[11px] outline-none uppercase">
+                            <span class="mx-2 text-slate-400">-</span>
+                            <input type="date" name="tgl_selesai" value="<?= $tgl_selesai ?>" class="bg-transparent text-[11px] outline-none uppercase">
+                        </div>
+                        <div class="flex items-center px-3">
+                            <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs mr-2"></i>
+                            <input type="text" name="search" value="<?= htmlspecialchars($search) ?>" placeholder="Cari WBP atau NIK..." class="bg-transparent text-[11px] outline-none w-48">
+                        </div>
+                        <button type="submit" class="bg-imipas text-white px-4 py-1.5 rounded-xl text-[10px] font-black hover:bg-slate-800 transition">APPLY</button>
+                    </form>
                 </div>
-                <div class="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-[10px] font-black border border-indigo-100 uppercase tracking-widest">
-                    Total: <?= mysqli_num_rows($result) ?> Data
+
+                <div class="flex items-center gap-6">
+                    <div class="hidden sm:block text-right border-r pr-6 border-slate-200">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Database</p>
+                        <p class="text-sm font-black text-imipas"><?= number_format(count($result)) ?> Antrean</p>
+                    </div>
+                    <button onclick="confirmDeleteAll()" class="flex items-center gap-2 text-rose-600 hover:text-rose-800 transition">
+                        <i class="fa-solid fa-trash-can text-sm"></i>
+                        <span class="text-[10px] font-black uppercase tracking-tighter">Kosongkan</span>
+                    </button>
                 </div>
-            </div>
+            </header>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 table-container">
-                <table class="sheet-table" id="dataTable">
-                    <thead>
-                        <tr>
-                            <th class="sticky-col bg-slate-100 text-center">Aksi</th>
-                            <th class="sticky-col">Antrean</th>
-                            <th class="sticky-col">Nama WBP</th>
-                            <th>Status WBP</th>
-                            <th>Sesi</th>
-                            <th class="bg-blue-50 text-blue-700">Pendaftar Utama</th>
-                            <th class="bg-blue-50 text-blue-700">NIK Utama</th>
-                            <?php for($i=1; $i<=4; $i++): ?>
-                                <th class="header-pengikut">Nama Pengikut <?= $i ?></th>
-                                <th class="header-pengikut">NIK Pengikut <?= $i ?></th>
-                            <?php endfor; ?>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php 
-                        while($k = mysqli_fetch_assoc($result)): 
-                            $kid = $k['id'];
-                            $q_pengunjung = mysqli_query($conn, "SELECT * FROM kunjungan_pengunjung WHERE kunjungan_id = '$kid' ORDER BY id ASC");
-                            $p_list = [];
-                            while($p = mysqli_fetch_assoc($q_pengunjung)) { $p_list[] = $p; }
-                            $utama = isset($p_list[0]) ? $p_list[0] : ['nama_pengunjung'=>'-','nik_pengunjung'=>'-'];
-                        ?>
-                        <tr>
-                            <td class="sticky-col text-center bg-white">
-                                <a href="?hapus=<?= $k['id'] ?>" class="btn-hapus text-red-500 hover:text-red-700 p-2 inline-block">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </a>
-                            </td>
-                            <td class="sticky-col font-black text-blue-600 text-center"><?= $k['no_antrean'] ?></td>
-                            <td class="sticky-col font-bold uppercase"><?= htmlspecialchars($k['nama_wbp']) ?></td>
-                            <td class="italic text-slate-500 font-semibold"><?= $k['status_wbp'] ?></td>
-                            <td class="text-xs font-bold"><?= $k['sesi'] ?></td>
-                            <td class="font-bold text-slate-800 uppercase"><?= htmlspecialchars($utama['nama_pengunjung']) ?></td>
-                            <td class="font-mono bg-blue-50/50"><?= htmlspecialchars($utama['nik_pengunjung']) ?></td>
+            <main class="flex-1 p-6 overflow-hidden">
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden h-full flex flex-col">
+                    <div class="table-container custom-scrollbar overflow-x-auto">
+                        <table class="w-full text-left min-w-[1400px]">
+                            <thead>
+                                <tr class="text-[10px] uppercase tracking-wider">
+                                    <th class="p-5 text-center lg:sticky-left-1">Opsi</th>
+                                    <th class="p-5 lg:sticky-left-2 text-center">No</th>
+                                    <th class="p-5 lg:sticky-left-3">Nama WBP</th>
+                                    <th class="p-5">Status</th>
+                                    <th class="p-5 text-center">Sesi</th>
+                                    <th class="p-5">Pengunjung Utama</th>
+                                    <th class="p-5">NIK Utama</th>
+                                    <?php for($i=1; $i<=4; $i++): ?>
+                                        <th class="p-5 text-slate-400 border-l border-white/10 font-normal">Pengikut <?= $i ?></th>
+                                        <th class="p-5 text-slate-400 font-normal">NIK <?= $i ?></th>
+                                    <?php endfor; ?>
+                                </tr>
+                            </thead>
+                            <tbody class="text-[12px] text-slate-600">
+                                <?php 
+                                $last_date = "";
+                                foreach($result as $k): 
+                                    if($last_date != $k['tanggal_kunjungan']){
+                                        $last_date = $k['tanggal_kunjungan'];
+                                        echo "<tr class='bg-slate-50'>
+                                                <td colspan='15' class='p-3 px-8 font-black text-imipas text-[10px] uppercase tracking-widest border-y border-slate-100 sticky left-0'>
+                                                    <i class='fa-solid fa-calendar-check text-amber-500 mr-2'></i> ".tgl_indo($last_date)."
+                                                </td>
+                                              </tr>";
+                                    }
 
-                            <?php for($i=1; $i<=4; $i++): 
-                                $data_p = isset($p_list[$i]) ? $p_list[$i] : null;
-                            ?>
-                                <td class="bg-slate-50 font-semibold text-blue-800 uppercase"><?= $data_p ? htmlspecialchars($data_p['nama_pengunjung']) : '' ?></td>
-                                <td class="bg-slate-50 font-mono text-slate-500"><?= $data_p ? htmlspecialchars($data_p['nik_pengunjung']) : '' ?></td>
-                            <?php endfor; ?>
-                        </tr>
-                        <?php endwhile; ?>
-                    </tbody>
-                </table>
-            </div>
-        </main>
+                                    $stmt_p = $pdo->prepare("SELECT * FROM kunjungan_pengunjung WHERE kunjungan_id = ? ORDER BY id ASC");
+                                    $stmt_p->execute([$k['id']]);
+                                    $p_list = $stmt_p->fetchAll(PDO::FETCH_ASSOC);
+                                    $utama = $p_list[0] ?? ['nama_pengunjung'=>'-','nik_pengunjung'=>'-'];
+                                ?>
+                                <tr class="border-b border-slate-50 group hover:bg-slate-50/50">
+                                    <td class="p-4 text-center lg:sticky-left-1 bg-white group-hover:bg-slate-50 transition-colors">
+                                        <button onclick="confirmDelete(<?= $k['id'] ?>)" class="text-slate-300 hover:text-rose-600 transition-colors">
+                                            <i class="fa-solid fa-trash-can text-xs"></i>
+                                        </button>
+                                    </td>
+                                    <td class="p-4 lg:sticky-left-2 bg-white group-hover:bg-slate-50 text-center transition-colors">
+                                        <span><?= $k['no_antrean'] ?></span>
+                                    </td>
+                                    <td class="p-4 uppercase lg:sticky-left-3 bg-white group-hover:bg-slate-50 transition-colors copyable" onclick="copyText('<?= addslashes($k['nama_wbp']) ?>', this)">
+                                        <?= htmlspecialchars($k['nama_wbp']) ?>
+                                    </td>
+                                    <td class="p-4 text-slate-400 italic"><?= $k['status_wbp'] ?></td>
+                                    <td class="p-4 text-center">
+                                        <span class="text-[10px] uppercase <?= strpos($k['sesi'], '1') !== false ? 'text-blue-600' : 'text-emerald-600' ?>">
+                                            <?= $k['sesi'] ?>
+                                        </span>
+                                    </td>
+                                    <td class="p-4 uppercase copyable text-slate-700" onclick="copyText('<?= addslashes($utama['nama_pengunjung']) ?>', this)">
+                                        <?= htmlspecialchars($utama['nama_pengunjung']) ?>
+                                    </td>
+                                    <td class="p-4 font-mono text-slate-400 copyable" onclick="copyText('<?= addslashes($utama['nik_pengunjung']) ?>', this)">
+                                        <?= htmlspecialchars($utama['nik_pengunjung']) ?>
+                                    </td>
+                                    <?php for($i=1; $i<=4; $i++): 
+                                        $data_p = $p_list[$i] ?? null;
+                                    ?>
+                                        <td class="p-4 uppercase text-slate-500 border-l border-slate-50 <?= $data_p ? 'copyable' : '' ?>"
+                                            onclick="<?= $data_p ? "copyText('".addslashes($data_p['nama_pengunjung'])."', this)" : "" ?>">
+                                            <?= $data_p ? htmlspecialchars($data_p['nama_pengunjung']) : '-' ?>
+                                        </td>
+                                        <td class="p-4 font-mono text-slate-300 text-[10px] <?= $data_p ? 'copyable' : '' ?>"
+                                            onclick="<?= $data_p ? "copyText('".addslashes($data_p['nik_pengunjung'])."', this)" : "" ?>">
+                                            <?= $data_p ? htmlspecialchars($data_p['nik_pengunjung']) : '-' ?>
+                                        </td>
+                                    <?php endfor; ?>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
-</div>
 
-<script>
-// Fungsi Hapus Semua menggunakan SweetAlert2 yang seragam dengan menu_admin.php
-function confirmDeleteAll() {
-    Swal.fire({
-        title: 'Hapus Seluruh Data?',
-        text: "Tindakan ini akan mengosongkan seluruh antrean kunjungan secara permanen!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        cancelButtonColor: '#64748b',
-        confirmButtonText: 'Ya, Bersihkan Semua!',
-        cancelButtonText: 'Batal',
-        reverseButtons: true
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = "?action=deleteAll";
-        }
-    });
-}
+    <script>
+    function toggleSidebar() {
+        const sb = document.getElementById('sidebar');
+        const ov = document.getElementById('sidebarOverlay');
+        if(sb) sb.classList.toggle('-translate-x-full');
+        if(ov) ov.classList.toggle('hidden');
+    }
 
-function toggleFullscreen() {
-    let elem = document.getElementById("main-content");
-    if (!document.fullscreenElement) { elem.requestFullscreen(); } 
-    else { document.exitFullscreen(); }
-}
-</script>
+    function copyText(text, element) {
+        if (!text || text === '-' || text === 'null') return;
+        navigator.clipboard.writeText(text).then(() => {
+            const original = element.innerHTML;
+            element.classList.add('text-emerald-600');
+            element.innerHTML = '<i class="fa-solid fa-check mr-1"></i> COPIED';
+            setTimeout(() => {
+                element.classList.remove('text-emerald-600');
+                element.innerHTML = original;
+            }, 700);
+        });
+    }
 
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Hapus Antrean?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#07213D',
+            cancelButtonColor: '#f43f5e',
+            confirmButtonText: 'Ya, Hapus',
+            customClass: { popup: 'rounded-3xl' }
+        }).then((result) => { if (result.isConfirmed) { window.location.href = "?hapus=" + id; } });
+    }
+
+    function confirmDeleteAll() {
+        Swal.fire({
+            title: 'KOSONGKAN DATA?',
+            text: "Seluruh data akan dihapus permanen!",
+            icon: 'error',
+            showCancelButton: true,
+            confirmButtonColor: '#f43f5e',
+            confirmButtonText: 'Hapus Semua',
+            customClass: { popup: 'rounded-3xl' }
+        }).then((result) => { if (result.isConfirmed) { window.location.href = "?action=deleteAll"; } });
+    }
+
+    <?php if(isset($_SESSION['alert'])): ?>
+        Swal.fire({ 
+            icon: '<?= $_SESSION['alert']['type'] ?>', 
+            title: '<?= $_SESSION['alert']['title'] ?>', 
+            text: '<?= $_SESSION['alert']['msg'] ?>',
+            confirmButtonColor: '#07213D',
+            customClass: { popup: 'rounded-3xl' }
+        });
+        <?php unset($_SESSION['alert']); ?>
+    <?php endif; ?>
+    </script>
 </body>
 </html>

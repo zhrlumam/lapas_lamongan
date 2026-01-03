@@ -25,7 +25,8 @@
           'berita.php' => 'Berita',
           'produk.php' => 'Produk WBP',
           'kunjungan.php' => 'Kunjungan',
-          'pengaduan.php' => 'Pengaduan'
+          'pengaduan.php' => 'Pengaduan',
+          'integrasi.php' => 'Integrasi'
         ];
 
         foreach ($menus as $link => $name): 

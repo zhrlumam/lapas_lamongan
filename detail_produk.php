@@ -1,7 +1,24 @@
 <?php 
+// 0. SET TIMEZONE & ERROR HANDLING
+date_default_timezone_set('Asia/Jakarta');
+error_reporting(E_ALL);
+ini_set('display_errors', 0); 
+
+// 1. KEAMANAN: Header Proteksi
+header("X-XSS-Protection: 1; mode=block");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: SAMEORIGIN");
+
 include "config/koneksi.php";
 
-// 1. KEAMANAN: Prepared Statements
+/** * SINKRONISASI KONEKSI:
+ * Menjamin variabel $conn tetap tersedia
+ */
+if (!isset($conn) && isset($pdo)) {
+    $conn = new mysqli($host, $user, $pass, $db);
+}
+
+// 2. KEAMANAN: Prepared Statements
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     header("Location: produk.php");
     exit;
@@ -19,6 +36,7 @@ if (!$data) {
     exit;
 }
 
+// 3. HELPER KEAMANAN
 function e($string) {
     return htmlspecialchars($string ?? '', ENT_QUOTES, 'UTF-8');
 }
@@ -58,7 +76,7 @@ $gambar = (!empty($data['gambar']) && file_exists($gambarPath)) ? $gambarPath : 
             padding-top: 10px !important; 
         }
 
-        /* CARD GAMBAR MINIMALIS (Tanpa Sinar/Gradasi) */
+        /* CARD GAMBAR MINIMALIS */
         .premium-card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
@@ -68,7 +86,7 @@ $gambar = (!empty($data['gambar']) && file_exists($gambarPath)) ? $gambarPath : 
         }
 
         .img-display-area {
-            background: #ffffff; /* Putih Solid, Sinar dihapus */
+            background: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -76,7 +94,6 @@ $gambar = (!empty($data['gambar']) && file_exists($gambarPath)) ? $gambarPath : 
             overflow: hidden;
         }
 
-        /* Dekorasi Siku Emas tipis di pojok */
         .card-corner {
             position: absolute;
             top: 0;
@@ -135,9 +152,9 @@ $gambar = (!empty($data['gambar']) && file_exists($gambarPath)) ? $gambarPath : 
 
                         <div class="py-6 border-y border-slate-100">
                             <h3 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Informasi Lengkap :</h3>
-                            <p class="text-slate-600 leading-relaxed text-lg font-light">
+                            <div class="text-slate-600 leading-relaxed text-lg font-light">
                                 <?= nl2br(e($data['deskripsi'])) ?>
-                            </p>
+                            </div>
                         </div>
 
                         <div class="flex flex-col gap-4 pt-4">
