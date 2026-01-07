@@ -1,0 +1,6 @@
+/vendor
+/uploads
+/config/google_config.php
+.env
+.DS_Store
+Thumbs.db

@@ -1,0 +1,10 @@
+{
+    "require": {
+        "google/apiclient": "*",
+        "google/apiclient-services": "^0.426.0",
+        "phpoffice/phpword": "^1.3",
+        "ilovepdf/ilovepdf-php": "^1.2",
+        "setasign/fpdf": "^1.8",
+        "setasign/fpdi": "^2.3"
+    }
+}

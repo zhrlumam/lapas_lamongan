@@ -1,0 +1,8 @@
+Column 'role' modified to VARCHAR(50).
+Roles updated.
+
+CURRENT DATABASE STATE:
+User: [umam1] | Role: [Registrasi]
+User: [umam2] | Role: [Super Admin]
+User: [admin_umam] | Role: [Pengaduan]
+User: [umam] | Role: [Humas]

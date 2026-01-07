@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /config/
+Disallow: /lib/
+Disallow: /uploads/
+
+Sitemap: https://lapaslamongan.go.id/sitemap.xml
