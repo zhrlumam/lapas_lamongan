@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+
+# Block access to sensitive areas
+Disallow: /storage/
+Disallow: /_backup_native/
+Disallow: /vendor/
+Disallow: /config/
+Disallow: /bootstrap/
+Disallow: /database/
+
+# Allow search engines to index public content
+Allow: /assets/
+Allow: /uploads/
+
+Sitemap: {{APP_URL}}/sitemap.xml

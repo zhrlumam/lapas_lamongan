@@ -1,0 +1,8 @@
+Table: balasan_pengaduan
+Field: id | Type: bigint(20) unsigned
+Field: pengaduan_id | Type: bigint(20) unsigned
+Field: pengirim | Type: enum('admin','pelapor')
+Field: isi_balasan | Type: text
+Field: is_read | Type: tinyint(1)
+Field: created_at | Type: timestamp
+Field: updated_at | Type: timestamp
