@@ -254,6 +254,9 @@
     <!-- AI Chat Assistant -->
     @include('partials.chatbot')
 
+    <!-- Accessibility Helper -->
+    @include('partials.accessibility')
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             lucide.createIcons();

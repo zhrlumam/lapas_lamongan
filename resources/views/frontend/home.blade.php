@@ -58,7 +58,7 @@
                 <div class="absolute inset-0 bg-gradient-to-r from-midnight-blue via-midnight-blue/40 to-transparent z-10"></div>
                 <div class="absolute inset-0 bg-black/30 z-10"></div>
                 
-                <img :src="slide.image" class="absolute inset-0 w-full h-full object-cover grayscale-[0.2]" alt="Hero Image">
+                <img :src="slide.image" class="absolute inset-0 w-full h-full object-cover" alt="Hero Image">
                 
                 <div class="relative z-20 max-w-5xl mx-auto h-full flex flex-col justify-center px-6 text-left">
                     <span class="text-gold-dignity font-black uppercase text-[10px] tracking-[0.4em] mb-4 block animate-[fadeInUp_1s_ease-out_0.2s_both]" x-text="'Lapas Kelas IIB Lamongan'"></span>
@@ -253,95 +253,103 @@
     
     <!-- Service & Visiting Schedule Section -->
     <section class="py-24 px-6 bg-soft-grey border-y border-platinum reveal-on-scroll">
-        <div class="max-w-5xl mx-auto">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
-                <div class="lg:col-span-4">
-                    <span class="text-gold-dignity font-black uppercase text-[11px] tracking-[0.4em] mb-4 block">Operasional</span>
-                    <h2 class="text-4xl font-black text-midnight-blue uppercase tracking-tighter leading-tight mb-6">Jadwal Layanan & Kunjungan</h2>
-                    <p class="text-sm text-dark-grey/60 leading-relaxed mb-8">
-                        Demi kelancaran pelayanan, harap perhatikan jam operasional kantor dan jadwal kunjungan bagi keluarga warga binaan di bawah ini.
-                    </p>
-                    <div class="flex items-center gap-4 p-4 bg-white border border-platinum rounded-sm">
-                        <div class="w-10 h-10 bg-green-500/10 text-green-600 rounded-full flex items-center justify-center">
-                            <i data-lucide="clock" class="w-5 h-5"></i>
+        <div class="max-w-6xl mx-auto">
+            <!-- Header Section -->
+            <div class="text-center mb-16">
+                <span class="text-gold-dignity font-black uppercase text-[10px] tracking-[0.5em] mb-4 block">Waktu Operasional</span>
+                <h2 class="text-4xl font-black text-midnight-blue uppercase tracking-tighter leading-tight mb-4">Jadwal Layanan & Kunjungan</h2>
+                <div class="w-20 h-1 bg-gold-dignity mx-auto mb-6"></div>
+                <p class="text-sm text-dark-grey/60 max-w-2xl mx-auto leading-relaxed">
+                    Demi kelancaran pelayanan, harap perhatikan jam operasional kantor dan jadwal kunjungan berikut ini.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Status & Antrean -->
+                <div class="bg-white border border-platinum rounded-sm p-8 flex flex-col items-center text-center group hover:border-gold-dignity transition-all">
+                    <div class="w-16 h-16 bg-soft-grey text-midnight-blue rounded-sm flex items-center justify-center mb-6">
+                        <i data-lucide="activity" class="w-8 h-8"></i>
+                    </div>
+                    <span class="text-[10px] font-black text-dark-grey/40 uppercase tracking-widest mb-2">Status Layanan</span>
+                    <h3 class="text-lg font-black text-green-600 uppercase mb-6">Layanan Dibuka</h3>
+                    
+                    <div class="w-full h-px bg-platinum/50 mb-6"></div>
+                    
+                    <div class="mb-8">
+                        <span class="block text-[10px] font-black text-dark-grey/40 uppercase tracking-widest mb-2">Antrean Hari Ini</span>
+                        <div class="flex items-center justify-center gap-2">
+                            <span class="text-4xl font-black text-midnight-blue">{{ $antrean_hari_ini }}</span>
+                            <span class="text-[10px] font-bold text-dark-grey uppercase">Pendaftar</span>
                         </div>
-                        <div>
-                            <span class="block text-[10px] font-black text-midnight-blue uppercase">Status Saat Ini</span>
-                            <span class="block text-xs font-bold text-green-600 uppercase tracking-widest">Layanan Dibuka</span>
+                    </div>
+
+                    <a href="{{ route('kunjungan') }}" class="mt-auto w-full py-4 bg-midnight-blue text-white text-[10px] font-black uppercase tracking-widest hover:bg-gold-dignity hover:text-midnight-blue transition-all rounded-sm flex items-center justify-center gap-2 group">
+                        Daftar Online
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                </div>
+
+                <!-- Office Schedule -->
+                <div class="bg-white border border-platinum rounded-sm p-8 flex flex-col group hover:border-gold-dignity transition-all">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-12 bg-midnight-blue text-gold-dignity rounded-sm flex items-center justify-center">
+                            <i data-lucide="building-2" class="w-6 h-6"></i>
                         </div>
+                        <h4 class="text-xs font-black text-midnight-blue uppercase tracking-widest">Layanan Kantor</h4>
                     </div>
                     
-                    <!-- Live Antrean Badge -->
-                    <div class="mt-4 flex items-center gap-4 p-4 bg-midnight-blue border border-gold-dignity/30 rounded-sm shadow-xl">
-                        <div class="w-10 h-10 bg-gold-dignity text-midnight-blue rounded-full flex items-center justify-center">
-                            <i data-lucide="users" class="w-5 h-5"></i>
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center pb-4 border-b border-platinum/50">
+                            <span class="text-[11px] font-bold text-dark-grey uppercase">Senin - Kamis</span>
+                            <span class="text-sm font-black text-midnight-blue uppercase">08:00 - 15:00</span>
                         </div>
-                        <div>
-                            <span class="block text-[10px] font-black text-platinum/60 uppercase">Antrean Hari Ini</span>
-                            <span class="block text-lg font-black text-gold-dignity uppercase tracking-tighter">{{ $antrean_hari_ini }} Orang Terdaftar</span>
+                        <div class="flex justify-between items-center pb-4 border-b border-platinum/50">
+                            <span class="text-[11px] font-bold text-dark-grey uppercase">Jumat</span>
+                            <span class="text-sm font-black text-midnight-blue uppercase">08:00 - 15:30</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-2">
+                            <span class="text-[11px] font-bold text-red-500 uppercase">Sabtu - Minggu</span>
+                            <span class="text-[10px] font-black text-red-500 uppercase bg-red-50 px-2 py-0.5">Tutup</span>
                         </div>
                     </div>
+
+                    <div class="mt-auto pt-8">
+                        <p class="text-[9px] text-dark-grey/40 font-medium leading-relaxed italic">
+                            * Jam istirahat pukul 12:00 - 13:00 WIB (Kecuali hari Jumat).
+                        </p>
+                    </div>
                 </div>
-                <div class="lg:col-span-8">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Jadwal Kantor -->
-                        <div class="bg-white p-8 border border-platinum rounded-sm shadow-sm group hover:border-gold-dignity transition-all">
-                            <div class="flex items-center gap-4 mb-6">
-                                <div class="w-12 h-12 bg-midnight-blue text-gold-dignity rounded-sm flex items-center justify-center">
-                                    <i data-lucide="building" class="w-6 h-6"></i>
-                                </div>
-                                <h4 class="text-sm font-black text-midnight-blue uppercase">Layanan Kantor</h4>
+
+                <!-- Visiting Schedule -->
+                <div class="bg-midnight-blue border border-white/10 rounded-sm p-8 flex flex-col shadow-2xl relative overflow-hidden group">
+                    <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-gold-dignity/5 rounded-full blur-2xl"></div>
+                    
+                    <div class="relative z-10 h-full flex flex-col">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 bg-gold-dignity text-midnight-blue rounded-sm flex items-center justify-center shadow-lg shadow-gold-dignity/20">
+                                <i data-lucide="users-2" class="w-6 h-6"></i>
                             </div>
-                            <div class="space-y-4">
-                                <div class="flex justify-between items-center pb-2 border-b border-platinum/50">
-                                    <span class="text-xs font-medium text-dark-grey">Senin - Kamis</span>
-                                    <span class="text-xs font-black text-midnight-blue uppercase">08:00 - 15:00</span>
-                                </div>
-                                <div class="flex justify-between items-center pb-2 border-b border-platinum/50">
-                                    <span class="text-xs font-medium text-dark-grey">Jumat</span>
-                                    <span class="text-xs font-black text-midnight-blue uppercase">08:00 - 15:30</span>
-                                </div>
-                                <div class="flex justify-between items-center text-red-500">
-                                    <span class="text-[10px] uppercase font-bold tracking-widest">Sabtu - Minggu</span>
-                                    <span class="text-[10px] uppercase font-bold tracking-widest">Tutup</span>
-                                </div>
-                            </div>
+                            <h4 class="text-xs font-black text-white uppercase tracking-widest">Jadwal Kunjungan</h4>
                         </div>
-                        <!-- Jadwal Kunjungan -->
-                        <div class="bg-midnight-blue p-8 border border-white/10 rounded-sm shadow-xl group hover:-translate-y-2 transition-all">
-                            <div class="flex items-center gap-4 mb-6">
-                                <div class="w-12 h-12 bg-gold-dignity text-midnight-blue rounded-sm flex items-center justify-center">
-                                    <i data-lucide="users" class="w-6 h-6"></i>
+
+                        <div class="space-y-6">
+                            <div class="flex justify-between items-center pb-4 border-b border-white/10">
+                                <div class="space-y-1">
+                                    <span class="text-[10px] font-black text-gold-dignity uppercase tracking-tighter block">Sesi Pagi</span>
+                                    <span class="text-sm font-black text-white uppercase font-mono">08:30 - 11:30</span>
                                 </div>
-                                <h4 class="text-sm font-black text-white uppercase">Kunjungan Tatap Muka</h4>
+                                <span class="text-[10px] font-bold text-platinum/30 uppercase tracking-[0.2em]">Senin-Kamis</span>
                             </div>
-                            <div class="space-y-4">
-                                <div class="flex justify-between items-start pb-2 border-b border-white/10">
-                                    <div class="space-y-1">
-                                        <span class="text-xs font-black text-gold-dignity uppercase block">• Sesi Pagi</span>
-                                        <span class="text-[10px] text-platinum/60 font-medium">08:30 - 11:30 WIB</span>
-                                    </div>
-                                    <span class="text-[10px] font-black text-platinum/40 uppercase tracking-widest mt-1">Senin - Kamis</span>
+                            <div class="flex justify-between items-center pb-4 border-b border-white/10">
+                                <div class="space-y-1">
+                                    <span class="text-[10px] font-black text-gold-dignity uppercase tracking-tighter block">Sesi Siang</span>
+                                    <span class="text-sm font-black text-white uppercase font-mono">13:30 - 15:00</span>
                                 </div>
-                                <div class="flex justify-between items-start pb-2 border-b border-white/10">
-                                    <div class="space-y-1">
-                                        <span class="text-xs font-black text-gold-dignity uppercase block">• Sesi Siang</span>
-                                        <span class="text-[10px] text-platinum/60 font-medium">13:30 - 15:00 WIB</span>
-                                    </div>
-                                    <span class="text-[10px] font-black text-platinum/40 uppercase tracking-widest mt-1">Senin - Kamis</span>
-                                </div>
-                                <div class="flex justify-between items-center pb-2 border-b border-white/10">
-                                    <span class="text-[10px] font-black text-platinum/40 uppercase tracking-widest">Durasi Kunjungan</span>
-                                    <span class="text-xs font-black text-gold-dignity uppercase tracking-widest">Maks 30 Menit</span>
-                                </div>
-                                <div class="flex justify-between items-center pb-2 border-b border-white/10">
-                                    <span class="text-[10px] font-black text-platinum/40 uppercase tracking-widest">Frekuensi Kunjungan</span>
-                                    <span class="text-[10px] font-black text-platinum uppercase tracking-tighter">Maks 1 Kali / Hari</span>
-                                </div>
-                                <div class="flex justify-between items-center">
-                                    <span class="text-[10px] font-black text-platinum/40 uppercase tracking-widest">Khusus Hari Jumat</span>
-                                    <span class="text-[10px] font-black text-white uppercase tracking-widest bg-red-600 px-2 py-0.5 rounded-sm shadow-sm ring-1 ring-white/20">LIBUR</span>
-                                </div>
+                                <span class="text-[10px] font-bold text-platinum/30 uppercase tracking-[0.2em]">Senin-Kamis</span>
+                            </div>
+                            <div class="flex justify-between items-center bg-red-600/10 p-3 rounded-sm border border-red-600/30">
+                                <span class="text-[10px] font-bold text-red-400 uppercase tracking-widest">Jumat - Minggu</span>
+                                <span class="text-[10px] font-black text-white uppercase">Tutup</span>
                             </div>
                         </div>
                     </div>
@@ -470,7 +478,7 @@
         <div class="max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 mb-16">
             @foreach($galeri as $g)
             <div class="group relative overflow-hidden aspect-[4/3] rounded-sm bg-midnight-blue ring-1 ring-platinum">
-                <img src="{{ $g->gambar_url }}" loading="lazy" class="w-full h-full object-cover opacity-80 grayscale group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" alt="{{ $g->judul }}">
+                <img src="{{ $g->gambar_url }}" loading="lazy" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" alt="{{ $g->judul }}">
                 <div class="absolute inset-0 bg-gradient-to-t from-midnight-blue via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div class="absolute bottom-6 left-6 right-6 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
                     <p class="text-white font-black uppercase text-[10px] tracking-widest mb-1">{{ $g->kategori }}</p>
@@ -501,7 +509,7 @@
                 @foreach($produk as $p)
                 <div class="group bg-white/5 border border-white/10 p-5 rounded-sm hover:bg-white/10 transition-all duration-500">
                     <div class="aspect-square overflow-hidden mb-6 bg-midnight-blue border border-white/5">
-                        <img src="{{ $p->gambar_url }}" alt="{{ $p->nama_produk }}" loading="lazy" class="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
+                        <img src="{{ $p->gambar_url }}" alt="{{ $p->nama_produk }}" loading="lazy" class="w-full h-full object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700">
                     </div>
                     <div>
                         <span class="text-[9px] font-black text-gold-dignity uppercase tracking-widest mb-1 block">{{ $p->kategori }}</span>

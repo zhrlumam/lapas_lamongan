@@ -77,7 +77,7 @@
                     <div class="absolute top-0 right-0 w-32 h-32 bg-gold-dignity/5 rounded-bl-[100px]"></div>
                     <div class="absolute bottom-0 left-0 w-32 h-32 bg-midnight-blue/5 rounded-tr-[100px]"></div>
                     
-                    <img src="{{ asset('assets/logolap.png') }}" class="w-24 h-auto mx-auto mb-8 grayscale opacity-20">
+                    <img src="{{ asset('assets/logolap.png') }}" class="w-24 h-auto mx-auto mb-8 opacity-20">
                     
                     <h3 class="text-xl font-bold text-midnight-blue uppercase mb-2">Seluruh Layanan</h3>
                     <div class="text-5xl font-black text-midnight-blue/10 mb-6 transform -rotate-2">

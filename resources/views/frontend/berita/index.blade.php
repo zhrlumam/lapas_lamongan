@@ -37,7 +37,7 @@
                 @foreach($berita as $item)
                 <article class="group">
                     <div class="aspect-[16/10] overflow-hidden mb-8 rounded-sm border border-platinum relative bg-platinum">
-                        <img src="{{ $item->gambar_url }}" loading="lazy" class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700">
+                        <img src="{{ $item->gambar_url }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700">
                         <div class="absolute inset-0 border-4 border-white opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                     </div>
                     <div class="space-y-4">

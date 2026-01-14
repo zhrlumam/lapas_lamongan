@@ -41,7 +41,7 @@
              <div class="bg-white border border-platinum rounded-sm overflow-hidden flex flex-col md:flex-row hover:shadow-[0_20px_60px_rgba(0,0,0,0.05)] transition-shadow duration-500">
                 <div class="md:w-5/12 aspect-[4/5] relative overflow-hidden group bg-platinum">
                     @if($profil->foto_kepala)
-                        <img src="{{ asset('storage/'.$profil->foto_kepala) }}" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105">
+                        <img src="{{ asset('storage/'.$profil->foto_kepala) }}" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-105">
                     @else
                         <div class="w-full h-full flex items-center justify-center bg-soft-grey text-midnight-blue/20">
                             <i data-lucide="user" class="w-24 h-24"></i>
@@ -66,7 +66,7 @@
                     </div>
                     
                     <div class="pt-8 border-t border-platinum flex items-center gap-6">
-                       <img src="{{ asset('assets/logolap.png') }}" class="h-8 grayscale opacity-20">
+                       <img src="{{ asset('assets/logolap.png') }}" class="h-8 opacity-20">
                        <div class="text-[9px] font-bold text-dark-grey/40 uppercase tracking-[0.2em]">
                            Integritas & Pelayanan <br> Prima
                        </div>
@@ -148,7 +148,7 @@
                 </div>
                 <div class="lg:col-span-7">
                     <div class="rounded-sm overflow-hidden border border-platinum p-2 bg-white shadow-sm group">
-                        <img src="{{ asset('assets/struktur.jpeg') }}" loading="lazy" class="w-full h-auto grayscale group-hover:grayscale-0 transition-all duration-700" alt="Struktur Organisasi">
+                        <img src="{{ asset('assets/struktur.jpeg') }}" loading="lazy" class="w-full h-auto transition-all duration-700" alt="Struktur Organisasi">
                     </div>
                 </div>
             </div>
