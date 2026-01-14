@@ -1,109 +1,89 @@
 @extends('layouts.admin')
 
 @section('title', 'Edit Produk')
-@section('page_title', 'Edit Produk Unggulan')
+@section('page_title', 'Perbarui Produk Unggulan')
 
 @section('content')
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <div class="lg:col-span-1">
-        @if(session('success'))
-            <div class="mb-4 p-4 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-100 text-xs font-bold">
-                {{ session('success') }}
-            </div>
-        @endif
+<div class="max-w-4xl mx-auto">
+    <div class="admin-card overflow-hidden reveal-on-scroll">
+        <div class="px-6 py-4 border-b border-platinum bg-soft-grey/30">
+            <h3 class="text-[11px] font-black text-midnight-blue uppercase tracking-widest flex items-center gap-2">
+                <i data-lucide="edit-3" class="w-4 h-4 text-gold-dignity"></i> Formulir Edit Produk
+            </h3>
+        </div>
 
-        @if(session('error'))
-            <div class="mb-4 p-4 bg-red-50 text-red-700 rounded-2xl border border-red-100 text-xs font-bold">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="mb-4 p-4 bg-red-50 text-red-700 rounded-2xl border border-red-100 text-xs font-bold">
-                <ul class="list-disc pl-4">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <div class="bg-white rounded-[3rem] shadow-sm border border-slate-100 p-8">
-            <h3 class="text-sm font-black text-indigo-900 uppercase tracking-widest mb-6">Edit Produk</h3>
-            <form action="{{ route('admin.produk.update', $produkElement->id_produk) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
-                @csrf
-                @method('PUT')
-                
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Nama Produk</label>
-                    <input type="text" name="nama_produk" value="{{ old('nama_produk', $produkElement->nama_produk) }}" required class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-amber-500 font-bold text-indigo-900">
+        <form action="{{ route('admin.produk.update', $produkElement->id_produk) }}" method="POST" enctype="multipart/form-data" class="p-6 md:p-8 space-y-6">
+            @csrf
+            @method('PUT')
+            
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                {{-- Nama Produk --}}
+                <div class="md:col-span-8 space-y-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nama Produk</label>
+                    <input type="text" name="nama_produk" required value="{{ old('nama_produk', $produkElement->nama_produk) }}" placeholder="Masukkan nama produk..." 
+                        class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-bold text-midnight-blue focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all placeholder-slate-300">
                 </div>
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Kategori</label>
-                    <select name="kategori" required class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-amber-500 font-bold text-indigo-900">
+
+                {{-- Kategori --}}
+                <div class="md:col-span-4 space-y-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kategori</label>
+                    <select name="kategori" required 
+                        class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-bold text-midnight-blue focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all">
                         <option value="Kerajinan" {{ old('kategori', $produkElement->kategori) == 'Kerajinan' ? 'selected' : '' }}>Kerajinan</option>
                         <option value="Lukisan" {{ old('kategori', $produkElement->kategori) == 'Lukisan' ? 'selected' : '' }}>Lukisan</option>
                         <option value="Kuliner" {{ old('kategori', $produkElement->kategori) == 'Kuliner' ? 'selected' : '' }}>Kuliner</option>
                         <option value="Lainnya" {{ old('kategori', $produkElement->kategori) == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Gambar Produk</label>
+
+                {{-- Gambar dengan Preview --}}
+                <div class="md:col-span-12 space-y-2" x-data="{ photoName: null, photoPreview: '{{ $produkElement->gambar_url }}' }">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gambar Produk</label>
                     
-                    @if($produkElement->gambar)
-                        <div class="mb-2">
-                            <img src="{{ $produkElement->gambar_url }}" alt="Current Image" class="w-16 h-16 rounded-xl object-cover border border-slate-200">
-                            <p class="text-[9px] text-slate-400 mt-1">Gambar saat ini</p>
+                    <input type="file" name="gambar" id="photo" class="hidden" x-ref="photo"
+                        x-on:change="
+                            photoName = $refs.photo.files[0].name;
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                photoPreview = e.target.result;
+                            };
+                            reader.readAsDataURL($refs.photo.files[0]);
+                        ">
+
+                    <div class="relative w-full h-48 bg-soft-grey rounded border-2 border-dashed border-platinum flex flex-col items-center justify-center cursor-pointer hover:border-gold-dignity transition-colors group" @click="$refs.photo.click()">
+                        
+                        {{-- Show placeholder if no image exists and no preview --}}
+                        <div x-show="!photoPreview" class="flex flex-col items-center text-slate-400 group-hover:text-gold-dignity transition-colors">
+                            <i data-lucide="image-plus" class="w-8 h-8 mb-2"></i>
+                            <span class="text-[10px] font-bold uppercase tracking-widest">Upload Gambar Baru</span>
                         </div>
-                    @endif
 
-                    <input type="file" name="gambar" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-amber-500 font-bold text-indigo-900">
-                    <p class="text-[9px] text-slate-400 mt-1">* Kosongkan jika tidak ingin mengubah gambar (Max 2MB)</p>
+                        {{-- Show preview (either existing image or new upload) --}}
+                        <div x-show="photoPreview" class="absolute inset-0 w-full h-full bg-cover bg-center rounded overflow-hidden"
+                             x-bind:style="'background-image: url(\'' + photoPreview + '\');'">
+                             <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-white text-[10px] font-bold uppercase tracking-widest">Ganti Gambar</span>
+                             </div>
+                        </div>
+                    </div>
+                    <p class="text-[9px] text-slate-400">* Biarkan jika tidak ingin mengubah gambar. Max 2MB (JPG/PNG)</p>
                 </div>
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Deskripsi</label>
-                    <textarea name="deskripsi" required rows="4" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-amber-500 font-bold text-indigo-900">{{ old('deskripsi', $produkElement->deskripsi) }}</textarea>
-                </div>
-                
-                <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-indigo-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest hover:bg-amber-500 hover:text-indigo-900 transition-all">Update</button>
-                    <a href="{{ route('admin.produk.index') }}" class="px-6 py-4 bg-slate-100 text-slate-500 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-200 transition-all text-center">Batal</a>
-                </div>
-            </form>
-        </div>
-    </div>
 
-    <div class="lg:col-span-2">
-        <div class="bg-white rounded-[3rem] shadow-sm border border-slate-100 p-8">
-            <h3 class="text-sm font-black text-indigo-900 uppercase tracking-widest mb-6">Daftar Produk</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @foreach($produk as $p)
-                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-[2rem] border border-slate-100 {{ $p->id_produk == $produkElement->id_produk ? 'ring-2 ring-amber-500 bg-amber-50' : '' }}">
-                    <img src="{{ $p->gambar_url }}" class="w-16 h-16 rounded-xl object-cover">
-                    <div class="flex-1">
-                        <h4 class="font-black text-indigo-900 uppercase text-[10px]">{{ $p->nama_produk }}</h4>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase">{{ $p->kategori }}</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        @if($p->id_produk != $produkElement->id_produk)
-                            <a href="{{ route('admin.produk.edit', $p->id_produk) }}" class="w-8 h-8 bg-amber-50 text-amber-500 rounded-lg flex items-center justify-center hover:bg-amber-500 hover:text-white transition-all">
-                                <i data-lucide="edit-2" class="w-4 h-4"></i>
-                            </a>
-                            <form action="{{ route('admin.produk.destroy', $p->id_produk) }}" method="POST" onsubmit="return confirm('Yakin hapus produk ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="w-8 h-8 bg-red-50 text-red-500 rounded-lg flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
-                                    <i data-lucide="trash" class="w-4 h-4"></i>
-                                </button>
-                            </form>
-                        @else
-                            <span class="text-[9px] font-bold text-amber-600 bg-amber-100 px-2 py-1 rounded-lg">Sedang Diedit</span>
-                        @endif
-                    </div>
+                {{-- Deskripsi --}}
+                <div class="md:col-span-12 space-y-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Deskripsi Produk</label>
+                    <textarea name="deskripsi" required rows="6" placeholder="Tuliskan deskripsi produk..." 
+                        class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-medium text-slate-600 focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all placeholder-slate-300 leading-relaxed">{{ old('deskripsi', $produkElement->deskripsi) }}</textarea>
                 </div>
-                @endforeach
             </div>
-        </div>
+
+            <div class="pt-6 border-t border-platinum flex justify-end gap-3">
+                <a href="{{ route('admin.produk.index') }}" class="px-6 py-2.5 rounded border border-platinum text-[11px] font-bold text-slate-500 uppercase tracking-widest hover:bg-soft-grey transition-all">Batal</a>
+                <button type="submit" class="bg-midnight-blue text-white px-8 py-2.5 rounded font-black text-[11px] uppercase tracking-widest hover:bg-gold-dignity hover:text-midnight-blue transition-all shadow-lg flex items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> Simpan Perubahan
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 @endsection

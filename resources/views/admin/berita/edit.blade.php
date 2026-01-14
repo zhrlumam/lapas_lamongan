@@ -12,7 +12,7 @@
             </h3>
         </div>
 
-        <form action="{{ route('admin.berita.update', $berita->id_berita) }}" method="POST" enctype="multipart/form-data" class="p-6 md:p-8 space-y-6">
+        <form action="{{ route('admin.berita.update', $berita) }}" method="POST" enctype="multipart/form-data" class="p-6 md:p-8 space-y-6">
             @csrf
             @method('PUT')
             
@@ -29,6 +29,15 @@
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tanggal Publish</label>
                     <input type="date" name="tanggal" required value="{{ old('tanggal', $berita->tanggal) }}" 
                         class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-bold text-midnight-blue focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all">
+                </div>
+
+                <!-- Status -->
+                <div class="md:col-span-12 space-y-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status Publikasi</label>
+                    <select name="status" required class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-bold text-midnight-blue focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all">
+                        <option value="published" {{ old('status', $berita->status) === 'published' ? 'selected' : '' }}>DITERBITKAN (LIVE)</option>
+                        <option value="draft" {{ old('status', $berita->status) === 'draft' ? 'selected' : '' }}>SIMPAN SEBAGAI DRAF</option>
+                    </select>
                 </div>
 
                 <!-- Gambar -->
@@ -67,7 +76,7 @@
                 <!-- Isi Berita -->
                 <div class="md:col-span-12 space-y-2">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Konten Berita</label>
-                    <textarea name="isi" required rows="12" placeholder="Tuliskan detail berita lengkap di sini..." 
+                    <textarea name="isi" id="editor" rows="12" placeholder="Tuliskan detail berita lengkap di sini..." 
                         class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-medium text-slate-600 focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all placeholder-slate-300 leading-relaxed">{{ old('isi', $berita->isi) }}</textarea>
                 </div>
             </div>
@@ -81,4 +90,14 @@
         </form>
     </div>
 </div>
+
+<script>
+    ClassicEditor
+        .create(document.querySelector('#editor'), {
+            toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'undo', 'redo'],
+        })
+        .catch(error => {
+            console.error(error);
+        });
+</script>
 @endsection

@@ -60,11 +60,15 @@
                             <div class="bg-white p-5 rounded-2xl rounded-tr-none shadow-sm border border-platinum text-sm text-dark-grey leading-relaxed">
                                 {{ $pengaduan->isi_pengaduan }}
                                 
-                                @if($pengaduan->foto_bukti)
+                                @if($pengaduan->foto_bukti_url)
                                 <div class="mt-4 pt-4 border-t border-platinum">
-                                    <a href="{{ asset($pengaduan->foto_bukti) }}" target="_blank" class="flex items-center gap-3 bg-soft-grey p-3 rounded-lg hover:bg-platinum transition-all group">
-                                        <div class="w-8 h-8 bg-white rounded flex items-center justify-center text-midnight-blue shadow-sm">
-                                            <i data-lucide="file" class="w-4 h-4"></i>
+                                    <a href="{{ $pengaduan->foto_bukti_url }}" target="_blank" class="flex items-center gap-3 bg-soft-grey p-3 rounded-lg hover:bg-platinum transition-all group">
+                                        <div class="w-8 h-8 bg-white rounded flex items-center justify-center text-midnight-blue shadow-sm overflow-hidden">
+                                            @if(\Illuminate\Support\Str::contains($pengaduan->foto_bukti, ['.jpg', '.jpeg', '.png']))
+                                                <img src="{{ $pengaduan->foto_bukti_url }}" class="w-full h-full object-cover">
+                                            @else
+                                                <i data-lucide="file" class="w-4 h-4"></i>
+                                            @endif
                                         </div>
                                         <div class="text-left overflow-hidden">
                                             <p class="text-[10px] font-bold text-dark-grey uppercase tracking-wider">Lampiran</p>
@@ -113,22 +117,32 @@
 
                 <!-- Reply Form -->
                 <div class="bg-white p-6 border-t border-platinum">
-                    @if(session('success'))
-                        <div class="mb-4 bg-green-50 text-green-700 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2">
-                             <i data-lucide="check" class="w-4 h-4"></i> Pesan terkirim
+                    @if($pengaduan->status == 'Selesai')
+                        <div class="bg-soft-grey p-8 rounded-2xl border border-dashed border-platinum text-center">
+                            <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center text-emerald-500 mx-auto mb-4 shadow-sm border border-emerald-100">
+                                <i data-lucide="check-circle" class="w-6 h-6"></i>
+                            </div>
+                            <h4 class="text-sm font-black text-midnight-blue uppercase mb-2 tracking-widest">Laporan Telah Selesai</h4>
+                            <p class="text-[11px] text-dark-grey/60 font-bold uppercase tracking-tight">Terima kasih atas laporan Anda. Percakapan ini telah ditutup karena status laporan sudah selesai.</p>
                         </div>
-                    @endif
+                    @else
+                        @if(session('success'))
+                            <div class="mb-4 bg-green-50 text-green-700 px-4 py-3 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center gap-2">
+                                <i data-lucide="check" class="w-4 h-4"></i> Pesan terkirim
+                            </div>
+                        @endif
 
-                    <form action="{{ route('pengaduan.reply', $pengaduan->kode_tiket) }}" method="POST">
-                        @csrf
-                        <label class="text-[10px] font-black text-midnight-blue uppercase tracking-widest mb-2 block">Balas Pesan Admin</label>
-                        <div class="flex gap-3">
-                            <textarea name="isi_balasan" rows="2" required class="flex-1 bg-soft-grey border-2 border-platinum rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold-dignity transition-all" placeholder="Ketik balasan Anda di sini..."></textarea>
-                            <button type="submit" class="bg-midnight-blue text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gold-dignity transition-all shadow-lg shrink-0">
-                                <i data-lucide="send" class="w-5 h-5"></i>
-                            </button>
-                        </div>
-                    </form>
+                        <form action="{{ route('pengaduan.reply', $pengaduan->kode_tiket) }}" method="POST">
+                            @csrf
+                            <label class="text-[10px] font-black text-midnight-blue uppercase tracking-widest mb-2 block">Balas Pesan Admin</label>
+                            <div class="flex gap-3">
+                                <textarea name="isi_balasan" rows="2" required class="flex-1 bg-soft-grey border-2 border-platinum rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-gold-dignity transition-all" placeholder="Ketik balasan Anda di sini..."></textarea>
+                                <button type="submit" class="bg-midnight-blue text-white w-12 h-12 rounded-xl flex items-center justify-center hover:bg-gold-dignity transition-all shadow-lg shrink-0">
+                                    <i data-lucide="send" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                        </form>
+                    @endif
                 </div>
 
             </div>

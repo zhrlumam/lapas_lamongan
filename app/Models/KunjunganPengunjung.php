@@ -8,7 +8,7 @@ class KunjunganPengunjung extends Model
 {
     protected $table = 'kunjungan_pengunjung';
     protected $primaryKey = 'id';
-    public $timestamps = false; // native uses created_at timestamp default current_timestamp()
+    public $timestamps = true; // Enabled to match migration
 
     protected $guarded = [];
 

@@ -112,12 +112,16 @@
                                             <ul class="text-[10px] md:text-[11px] text-blue-700 space-y-2.5 leading-relaxed font-bold">
                                                 <li>1) Jumlah pengunjung maksimal 5 orang (termasuk anak-anak)</li>
                                                 <li>2) Tahanan dan Narapidana hanya dapat dikunjungi 1 kali dalam sehari</li>
-                                                <li>3) Hari Kunjungan:
+                                                <li>3) Hari Kunjungan (Senin - Kamis):
                                                     <div class="ml-4 mt-1 font-medium bg-white/50 p-2 rounded border border-blue-100/50">
-                                                        <div class="flex items-center gap-2 mb-1">• Senin & Kamis <span class="text-[9px] bg-blue-100 px-1.5 rounded">Tahanan</span></div>
-                                                        <div class="flex items-center gap-2">• Selasa & Sabtu <span class="text-[9px] bg-blue-100 px-1.5 rounded">Narapidana</span></div>
-                                                        <div class="mt-2 pt-2 border-t border-blue-100 text-blue-900">
-                                                            Sesi I: 08.00 - 10.15 | Sesi II: 10.15 - 11.00
+                                                        <div class="flex items-center gap-2 mb-1">• Sesi Pagi <span class="text-[9px] bg-blue-100 px-1.5 rounded ml-auto">08:30 - 11:30 WIB</span></div>
+                                                        <div class="flex items-center gap-2">• Sesi Siang <span class="text-[9px] bg-blue-100 px-1.5 rounded ml-auto">13:30 - 15:00 WIB</span></div>
+                                                        <div class="mt-2 pt-2 border-t border-blue-100 text-blue-900 flex justify-between items-center">
+                                                            <span>Durasi Kunjungan:</span>
+                                                            <span class="font-black">Maks 30 Menit</span>
+                                                        </div>
+                                                        <div class="mt-2 bg-red-50 p-1.5 rounded text-red-600 text-[9px] flex items-center gap-1.5 uppercase font-black">
+                                                            <i data-lucide="calendar-x" class="w-3 h-3"></i> Khusus Hari Jumat: LIBUR
                                                         </div>
                                                     </div>
                                                 </li>
@@ -174,8 +178,8 @@
                                         <label class="text-[10px] font-bold text-dark-grey/60 uppercase tracking-widest pl-1">Sesi Kunjungan</label>
                                         <div class="relative">
                                             <select name="sesi" required class="w-full bg-soft-grey border-2 border-platinum rounded-xl px-4 py-3.5 md:py-4 text-sm font-bold text-midnight-blue focus:outline-none focus:border-gold-dignity appearance-none cursor-pointer">
-                                                <option value="Sesi I (08.00-10.15)">SESI 1 • 08.00 - 10.15 WIB</option>
-                                                <option value="Sesi II (10.15-11.00)">SESI 2 • 10.15 - 11.00 WIB</option>
+                                                <option value="Sesi Pagi (08:30-11:30)">SESI PAGI • 08:30 - 11:30 WIB</option>
+                                                <option value="Sesi Siang (13:30-15:00)">SESI SIANG • 13:30 - 15:00 WIB</option>
                                             </select>
                                             <i data-lucide="chevron-down" class="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-grey/50 pointer-events-none"></i>
                                         </div>

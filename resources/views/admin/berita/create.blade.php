@@ -30,6 +30,15 @@
                         class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-bold text-midnight-blue focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all">
                 </div>
 
+                <!-- Status -->
+                <div class="md:col-span-12 space-y-2">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status Publikasi</label>
+                    <select name="status" required class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-bold text-midnight-blue focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all">
+                        <option value="published">DITERBITKAN (LIVE)</option>
+                        <option value="draft">SIMPAN SEBAGAI DRAF</option>
+                    </select>
+                </div>
+
                 <!-- Gambar -->
                 <div class="md:col-span-12 space-y-2" x-data="{ photoName: null, photoPreview: null }">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gambar Utama / Thumbnail</label>
@@ -64,8 +73,8 @@
                 <!-- Isi Berita -->
                 <div class="md:col-span-12 space-y-2">
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Konten Berita</label>
-                    <textarea name="isi" required rows="12" placeholder="Tuliskan detail berita lengkap di sini..." 
-                        class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-medium text-slate-600 focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all placeholder-slate-300 leading-relaxed"></textarea>
+                    <textarea name="isi" id="editor" rows="12" placeholder="Tuliskan detail berita lengkap di sini..." 
+                        class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-medium text-slate-600 focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all placeholder-slate-300 leading-relaxed">{{ old('isi') }}</textarea>
                 </div>
             </div>
 
@@ -78,4 +87,14 @@
         </form>
     </div>
 </div>
+
+<script>
+    ClassicEditor
+        .create(document.querySelector('#editor'), {
+            toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'undo', 'redo'],
+        })
+        .catch(error => {
+            console.error(error);
+        });
+</script>
 @endsection

@@ -24,4 +24,22 @@ class HunianController extends Controller
         WargaBinaan::create($data);
         return redirect()->back()->with('success', 'Data hunian berhasil diperbarui');
     }
+
+    public function destroy($id)
+    {
+        try {
+            $hunian = WargaBinaan::findOrFail($id);
+            
+            // SECURITY: Cegah hapus data terbaru (untuk keamanan data)
+            $latest = WargaBinaan::latest('tanggal_update')->first();
+            if ($latest && $latest->id_data == $id) {
+                return back()->with('error', 'Data terbaru tidak dapat dihapus. Silakan hapus data lain terlebih dahulu.');
+            }
+            
+            $hunian->delete();
+            return back()->with('success', 'Data hunian berhasil dihapus.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghapus data hunian.');
+        }
+    }
 }

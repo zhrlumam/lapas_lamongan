@@ -64,13 +64,17 @@
                             <th class="text-left">Tanggal</th>
                             <th class="text-center">Total</th>
                             <th class="text-right">Rincian (T|N|S|B)</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($hunian as $h)
+                        @forelse($hunian as $index => $h)
                         <tr class="hover:bg-soft-grey transition-colors">
                             <td class="font-bold text-midnight-blue text-xs">
                                 {{ \Carbon\Carbon::parse($h->tanggal_update)->format('d M Y') }}
+                                @if($index === 0)
+                                <span class="ml-2 bg-gold-dignity text-midnight-blue text-[9px] font-black px-1.5 py-0.5 rounded">TERBARU</span>
+                                @endif
                             </td>
                             <td class="text-center">
                                 <span class="bg-midnight-blue text-white text-[10px] font-black px-2 py-0.5 rounded">
@@ -83,10 +87,23 @@
                                 <span class="text-amber-600">{{ $h->sidang }}</span> / 
                                 <span class="text-red-500">{{ $h->berobat_luar }}</span>
                             </td>
+                            <td class="text-center">
+                                @if($index !== 0)
+                                <form action="{{ route('admin.hunian.destroy', $h->id_data) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="w-8 h-8 flex items-center justify-center bg-white border border-platinum text-slate-400 rounded-xl hover:bg-red-500 hover:text-white hover:border-red-500 transition-all shadow-sm" title="Hapus">
+                                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    </button>
+                                </form>
+                                @else
+                                <span class="text-[9px] text-slate-400 font-bold uppercase">Terkini</span>
+                                @endif
+                            </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="3" class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest">Belum ada data</td>
+                            <td colspan="4" class="text-center py-10 text-slate-400 text-xs font-bold uppercase tracking-widest">Belum ada data</td>
                         </tr>
                         @endforelse
                     </tbody>

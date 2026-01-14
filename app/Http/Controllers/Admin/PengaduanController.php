@@ -23,7 +23,11 @@ class PengaduanController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $request->validate(['status' => 'required']);
+        // SECURITY FIX: Validasi enum status sesuai database
+        $request->validate([
+            'status' => 'required|in:Masuk,Diproses,Selesai,Ditolak'
+        ]);
+        
         $item = Pengaduan::findOrFail($id);
         $item->update(['status' => $request->status]);
 

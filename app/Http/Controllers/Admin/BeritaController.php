@@ -34,6 +34,7 @@ class BeritaController extends Controller
                 'judul' => 'required|string|max:255',
                 'isi' => 'required|string',
                 'tanggal' => 'required|date',
+                'status' => 'required|in:draft,published',
                 'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Max 2MB
             ]);
 
@@ -48,7 +49,7 @@ class BeritaController extends Controller
                 
                 // Generate nama file yang aman
                 $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('uploads', $filename, 'public');
+                $path = $file->storeAs('berita', $filename, 'public');
                 $validated['gambar'] = basename($path);
             }
 
@@ -63,25 +64,19 @@ class BeritaController extends Controller
         }
     }
 
-    public function edit($id)
+    public function edit(Berita $berita)
     {
-        try {
-            $berita = Berita::findOrFail($id);
-            return view('admin.berita.edit', compact('berita'));
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return redirect()->route('admin.berita.index')->with('error', 'Berita tidak ditemukan.');
-        }
+        return view('admin.berita.edit', compact('berita'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Berita $berita)
     {
         try {
-            $berita = Berita::findOrFail($id);
-            
             $validated = $request->validate([
                 'judul' => 'required|string|max:255',
                 'isi' => 'required|string',
                 'tanggal' => 'required|date',
+                'status' => 'required|in:draft,published',
                 'gambar' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             ]);
 
@@ -94,21 +89,32 @@ class BeritaController extends Controller
                     return back()->withErrors(['gambar' => 'File harus berupa gambar JPG atau PNG.'])->withInput();
                 }
                 
-                // Delete old image
-                if ($berita->gambar && Storage::disk('public')->exists('uploads/' . $berita->gambar)) {
-                    Storage::disk('public')->delete('uploads/' . $berita->gambar);
+                // Hapus gambar lama dari berbagai kemungkinan lokasi (Modern & Legacy)
+                $oldImage = $berita->gambar;
+                if ($oldImage) {
+                    // 1. Modern Storage (storage/app/public/berita/)
+                    if (Storage::disk('public')->exists('berita/' . $oldImage)) {
+                        Storage::disk('public')->delete('berita/' . $oldImage);
+                    }
+                    // 2. Legacy Uploads (public/uploads/)
+                    if (file_exists(public_path('uploads/' . $oldImage))) {
+                        @unlink(public_path('uploads/' . $oldImage));
+                    }
                 }
                 
                 $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-                $path = $file->storeAs('uploads', $filename, 'public');
+                $path = $file->storeAs('berita', $filename, 'public');
                 $validated['gambar'] = basename($path);
+            }
+
+            // Update slug if judul changed
+            if ($berita->judul !== $validated['judul']) {
+                $validated['slug'] = Str::slug($validated['judul']) . '-' . $berita->id_berita;
             }
 
             $berita->update($validated);
 
             return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil diperbarui');
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return redirect()->route('admin.berita.index')->with('error', 'Berita tidak ditemukan.');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
@@ -117,21 +123,25 @@ class BeritaController extends Controller
         }
     }
 
-    public function destroy($id)
+    public function destroy(Berita $berita)
     {
         try {
-            $berita = Berita::findOrFail($id);
-            
-            // Delete image file
-            if ($berita->gambar && Storage::disk('public')->exists('uploads/' . $berita->gambar)) {
-                Storage::disk('public')->delete('uploads/' . $berita->gambar);
+            // Hapus fisik file gambar dari berbagai lokasi
+            $oldImage = $berita->gambar;
+            if ($oldImage) {
+                // 1. Modern Storage
+                if (Storage::disk('public')->exists('berita/' . $oldImage)) {
+                    Storage::disk('public')->delete('berita/' . $oldImage);
+                }
+                // 2. Legacy Uploads
+                if (file_exists(public_path('uploads/' . $oldImage))) {
+                    @unlink(public_path('uploads/' . $oldImage));
+                }
             }
             
             $berita->delete();
 
             return redirect()->route('admin.berita.index')->with('success', 'Berita berhasil dihapus');
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return redirect()->route('admin.berita.index')->with('error', 'Berita tidak ditemukan.');
         } catch (\Exception $e) {
             Log::error('Error deleting berita: ' . $e->getMessage());
             return back()->with('error', 'Gagal menghapus berita. Silakan coba lagi.');

@@ -11,28 +11,38 @@ class PengaduanController extends Controller
 {
     public function store(Request $request)
     {
+        // SECURITY FIX: Tambahkan sanitasi untuk mencegah XSS
         $request->validate([
             'nama_pelapor' => 'required|string|max:255',
-            'telepon'      => 'required|numeric', // Input name is telepon
-            'isi_pengaduan'=> 'required|string',
-            'bukti_file'   => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048', // Input name is bukti_file
+            'telepon'      => 'required|numeric',
+            'isi_pengaduan'=> 'required|string|max:5000', // Batasi panjang
+            'bukti_file'   => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048',
         ]);
+        
+        // Sanitasi input untuk mencegah XSS
+        $namaPelapor = strip_tags($request->nama_pelapor);
+        $isiPengaduan = strip_tags($request->isi_pengaduan);
 
+        // SECURITY FIX: Enhanced file upload security
         $filePath = null;
         if ($request->hasFile('bukti_file')) {
             $file = $request->file('bukti_file');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $path = public_path('bukti_pengaduan');
-            if(!file_exists($path)){
-                mkdir($path, 0777, true);
+            
+            // Validasi MIME type di server-side
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 
+                           'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            
+            if (!in_array($file->getMimeType(), $allowedMimes)) {
+                return back()->withErrors(['bukti_file' => 'File harus berupa gambar (JPG/PNG), PDF, atau dokumen Word.'])->withInput();
             }
-            $file->move($path, $fileName);
-            // Save ONLY filename as per DB example 'ADUAN_....jpg' or relative path?
-            // Existing data: 'ADUAN_1767409235.jpg'. It seems it stores filename only.
-            // But let's verify where it is stored. For now I store full relative path for Laravel convention,
-            // or just filename if the original app expects it.
-            // Let's store 'bukti_pengaduan/filename' to be safe with my storage logic.
-            $filePath = 'bukti_pengaduan/' . $fileName;
+            
+            // Generate random filename untuk keamanan
+            $extension = $file->getClientOriginalExtension();
+            $fileName = 'ADUAN_' . time() . '_' . \Illuminate\Support\Str::random(10) . '.' . $extension;
+            
+            // Simpan di storage/app/public/bukti_pengaduan (lebih aman)
+            $path = $file->storeAs('bukti_pengaduan', $fileName, 'public');
+            $filePath = $fileName; // Simpan nama file saja
         }
 
         // Generate Ticket Code
@@ -41,14 +51,13 @@ class PengaduanController extends Controller
             $kode_tiket = 'ADU-' . strtoupper(Str::random(5));
         }
 
-        // Create with DB column mapping
+        // Create with DB column mapping (gunakan data yang sudah disanitasi)
         $pengaduan = Pengaduan::create([
             'kode_tiket'      => $kode_tiket,
-            'nama_pelapor'    => $request->nama_pelapor,
+            'nama_pelapor'    => $namaPelapor,
             'kontak_pelapor'  => $request->telepon, 
-            'email_pelapor'   => null,
             'judul_pengaduan' => 'Laporan Masyarakat via Website',
-            'isi_pengaduan'   => $request->isi_pengaduan,
+            'isi_pengaduan'   => $isiPengaduan,
             'foto_bukti'      => $filePath, 
             'status'          => 'Masuk', // FIX: Sesuai Enum Database ('Masuk')
             'kategori_id'     => 8,

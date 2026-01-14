@@ -129,9 +129,18 @@ class GaleriController extends Controller
                     return back()->withErrors(['gambar' => 'Ukuran file maksimal 2MB.'])->withInput();
                 }
                 
-                // Hapus gambar lama
-                if ($galeri->gambar && Storage::disk('public')->exists($galeri->gambar)) {
-                    Storage::disk('public')->delete($galeri->gambar);
+                // Hapus gambar lama dari berbagai kemungkinan lokasi (Modern & Legacy)
+                $oldPath = $galeri->gambar;
+                if ($oldPath) {
+                    // 1. Path yang tersimpan di DB (Modern/Relative)
+                    if (Storage::disk('public')->exists($oldPath)) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
+                    // 2. Cek di legacy uploads (public/uploads/)
+                    $filename = basename($oldPath);
+                    if (file_exists(public_path('uploads/' . $filename))) {
+                        @unlink(public_path('uploads/' . $filename));
+                    }
                 }
                 
                 $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
@@ -157,9 +166,18 @@ class GaleriController extends Controller
     public function destroy(Galeri $galeri)
     {
         try {
-            // Hapus gambar
-            if ($galeri->gambar && Storage::disk('public')->exists($galeri->gambar)) {
-                Storage::disk('public')->delete($galeri->gambar);
+            // Hapus fisik file gambar dari berbagai lokasi
+            $oldPath = $galeri->gambar;
+            if ($oldPath) {
+                // 1. Path di storage
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+                // 2. Legacy uploads
+                $filename = basename($oldPath);
+                if (file_exists(public_path('uploads/' . $filename))) {
+                    @unlink(public_path('uploads/' . $filename));
+                }
             }
 
             $galeri->delete();

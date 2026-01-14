@@ -95,13 +95,13 @@
                     </div>
                 </div>
 
-                @if($item->foto_bukti)
+                @if($item->foto_bukti_url)
                 <div>
                     <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Bukti Pendukung</label>
                     <div class="mt-4 relative group">
-                        <img src="{{ asset($item->foto_bukti) }}" class="rounded-[2rem] max-h-96 w-full object-cover shadow-2xl border-4 border-white transition-transform group-hover:scale-[1.01]" alt="Bukti Pengaduan">
+                        <img src="{{ $item->foto_bukti_url }}" class="rounded-[2rem] max-h-96 w-full object-cover shadow-2xl border-4 border-white transition-transform group-hover:scale-[1.01]" alt="Bukti Pengaduan">
                         <div class="absolute inset-0 bg-midnight-blue/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-[2rem] flex items-center justify-center">
-                            <a href="{{ asset($item->foto_bukti) }}" target="_blank" class="bg-white text-midnight-blue p-4 rounded-full shadow-xl">
+                            <a href="{{ $item->foto_bukti_url }}" target="_blank" class="bg-white text-midnight-blue p-4 rounded-full shadow-xl">
                                 <i data-lucide="maximize-2" class="w-6 h-6"></i>
                             </a>
                         </div>
@@ -115,9 +115,53 @@
         <h3 class="text-xs font-black text-midnight-blue uppercase mb-4 tracking-widest px-4">Percakapan Laporan</h3>
         <div class="admin-card !p-0 overflow-hidden">
             <div class="p-10 space-y-6 max-h-[600px] overflow-y-auto custom-scrollbar bg-slate-50/50">
-                @forelse($item->balasan as $msg)
+                <!-- Data Awal (Laporan) -->
+                <div class="flex justify-start reveal-on-scroll">
+                    <div class="max-w-[85%]">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="w-6 h-6 bg-midnight-blue text-white rounded-lg flex items-center justify-center font-black text-[9px] uppercase">{{ substr($item->nama_pelapor, 0, 1) }}</div>
+                            <span class="text-[10px] font-black text-midnight-blue uppercase">{{ $item->nama_pelapor }} (Pelapor)</span>
+                        </div>
+                        <div class="relative bg-white text-slate-700 rounded-[1.5rem] rounded-tl-none border border-platinum shadow-sm p-6">
+                            <p class="text-sm leading-relaxed mb-4">{{ $item->isi_pengaduan }}</p>
+                            
+                            @if($item->foto_bukti_url)
+                            <div class="pt-4 border-t border-platinum">
+                                <a href="{{ $item->foto_bukti_url }}" target="_blank" class="flex items-center gap-3 bg-soft-grey p-3 rounded-lg hover:bg-platinum transition-all group">
+                                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-midnight-blue shadow-sm overflow-hidden">
+                                        @if(\Illuminate\Support\Str::contains($item->foto_bukti, ['.jpg', '.jpeg', '.png']))
+                                            <img src="{{ $item->foto_bukti_url }}" class="w-full h-full object-cover">
+                                        @else
+                                            <i data-lucide="file" class="w-5 h-5"></i>
+                                        @endif
+                                    </div>
+                                    <div class="text-left overflow-hidden">
+                                        <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Lampiran Bukti</p>
+                                        <p class="text-[11px] font-black text-midnight-blue truncate group-hover:underline">Buka Berkas</p>
+                                    </div>
+                                </a>
+                            </div>
+                            @endif
+                        </div>
+                        <div class="mt-2 text-left">
+                            <span class="text-[8px] font-black tracking-widest text-slate-400 uppercase">{{ $item->created_at->translatedFormat('d F Y, H:i') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Balasan Terkait -->
+                @foreach($item->balasan as $msg)
                 <div class="flex {{ $msg->pengirim == 'admin' ? 'justify-end' : 'justify-start' }} reveal-on-scroll">
                     <div class="max-w-[85%]">
+                        <div class="flex items-center gap-2 mb-2 {{ $msg->pengirim == 'admin' ? 'justify-end' : 'justify-start' }}">
+                            @if($msg->pengirim == 'pelapor')
+                                <div class="w-6 h-6 bg-midnight-blue text-white rounded-lg flex items-center justify-center font-black text-[9px] uppercase">{{ substr($item->nama_pelapor, 0, 1) }}</div>
+                                <span class="text-[10px] font-black text-midnight-blue uppercase">{{ $item->nama_pelapor }}</span>
+                            @else
+                                <span class="text-[10px] font-black text-gold-dignity uppercase tracking-widest">Pihak Lapas Lamongan</span>
+                                <div class="w-6 h-6 bg-gold-dignity text-midnight-blue rounded-lg flex items-center justify-center"><i data-lucide="shield-check" class="w-3.5 h-3.5"></i></div>
+                            @endif
+                        </div>
                         <div class="relative {{ $msg->pengirim == 'admin' ? 'bg-midnight-blue text-white rounded-[1.5rem] rounded-tr-none' : 'bg-white text-slate-700 rounded-[1.5rem] rounded-tl-none border border-platinum shadow-sm' }} p-6">
                             <p class="text-sm leading-relaxed">{{ $msg->isi_balasan }}</p>
                         </div>
@@ -129,14 +173,7 @@
                         </div>
                     </div>
                 </div>
-                @empty
-                <div class="text-center py-20 flex flex-col items-center gap-4">
-                    <div class="w-16 h-16 bg-soft-grey rounded-full flex items-center justify-center text-slate-300">
-                        <i data-lucide="message-square" class="w-8 h-8"></i>
-                    </div>
-                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Belum ada tanggapan</p>
-                </div>
-                @endforelse
+                @endforeach
             </div>
 
             <div class="p-8 bg-white border-t border-platinum">

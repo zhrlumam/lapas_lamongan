@@ -20,7 +20,7 @@
             <div class="bg-midnight-blue p-8 text-center relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                 <div class="relative z-10">
-                    <img src="{{ asset('assets/images/logolap.png') }}" class="h-16 mx-auto mb-4 grayscale brightness-200">
+                    <img src="{{ asset('assets/logo_imigrasi.png') }}" class="h-16 mx-auto mb-4 grayscale brightness-200">
                     <h2 class="text-lg font-black text-gold-dignity uppercase tracking-[0.2em]">Akses Integrasi</h2>
                     <p class="text-platinum/60 text-[10px] mt-2 uppercase font-bold tracking-wider">Portal Mandiri Penjamin WBP</p>
                 </div>

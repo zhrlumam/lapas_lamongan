@@ -26,5 +26,12 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+
+        // Redirect 403 (Unauthorized) in admin to Login Page
+        $this->renderable(function (\Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException $e, $request) {
+            if ($request->is('admin/*') || $request->is('admin')) {
+                return redirect()->route('admin.login')->with('error', 'Anda tidak memiliki hak akses untuk halaman tersebut.');
+            }
+        });
     }
 }

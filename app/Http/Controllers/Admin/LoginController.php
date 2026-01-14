@@ -18,16 +18,21 @@ class LoginController extends Controller
         $hunian = WargaBinaan::latest('tanggal_update')->first() ?: (object)['total_penghuni' => 0];
         $totalWbp = $hunian->total_penghuni;
         $survey = SurveyKepuasan::where('is_active', 1)->first();
-        $skorIkm = $survey ? $survey->skor_ikm : 0;
+        $skorIkm = $survey?->skor_ikm ?? 0;
         $pengunjungHariIni = Kunjungan::whereDate('tanggal_kunjungan', date('Y-m-d'))->count();
 
-        // Analytics Data: Visits last 7 days
+        // Analytics Data: Visits last 7 days (Optimized - Single Query)
+        $visitStats = Kunjungan::selectRaw('DATE(tanggal_kunjungan) as date, COUNT(*) as total')
+            ->where('tanggal_kunjungan', '>=', now()->subDays(6)->startOfDay())
+            ->groupBy('date')
+            ->pluck('total', 'date');
+
         $visitData = [];
         $visitLabels = [];
         for ($i = 6; $i >= 0; $i--) {
-            $date = date('Y-m-d', strtotime("-$i days"));
-            $visitLabels[] = date('d M', strtotime($date));
-            $visitData[] = Kunjungan::whereDate('tanggal_kunjungan', $date)->count();
+            $date = now()->subDays($i)->format('Y-m-d');
+            $visitLabels[] = now()->subDays($i)->format('d M');
+            $visitData[] = $visitStats[$date] ?? 0;
         }
 
         // Analytics Data: Complaints Status

@@ -4,42 +4,35 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Admin;
+use Illuminate\Support\Facades\DB;
 
 class AdminSeeder extends Seeder
 {
-    public function run()
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
     {
-        // 1. Super Admin
-        Admin::create([
-            'nama' => 'Kepala Lapas (Super Admin)',
-            'username' => 'admin_super',
-            'password' => Hash::make('password123'),
-            'role' => 'Super Admin',
-        ]);
+        // Check if super admin already exists
+        $existingAdmin = DB::table('admin')->where('username', 'superadmin')->first();
+        
+        if (!$existingAdmin) {
+            DB::table('admin')->insert([
+                'nama' => 'Super Administrator',
+                'username' => 'superadmin',
+                'password' => Hash::make('admin123'),
+                'role' => 'Super Admin',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
 
-        // 2. Petugas Layanan (Registrasi/WBP/Kunjungan)
-        Admin::create([
-            'nama' => 'Petugas Layanan',
-            'username' => 'admin_layanan',
-            'password' => Hash::make('password123'),
-            'role' => 'Layanan',
-        ]);
-
-        // 3. Petugas Humas (Berita/Galeri)
-        Admin::create([
-            'nama' => 'Petugas Humas',
-            'username' => 'admin_humas',
-            'password' => Hash::make('password123'),
-            'role' => 'Humas',
-        ]);
-
-        // 4. Petugas Pengaduan
-        Admin::create([
-            'nama' => 'Petugas Pengaduan',
-            'username' => 'admin_pengaduan',
-            'password' => Hash::make('password123'),
-            'role' => 'Pengaduan',
-        ]);
+            echo "✓ Super Admin berhasil dibuat!\n";
+            echo "Username: superadmin\n";
+            echo "Password: admin123\n";
+            echo "Role: Super Admin\n";
+        } else {
+            echo "⚠ Super Admin sudah ada di database.\n";
+            echo "Username yang ada: " . $existingAdmin->username . "\n";
+        }
     }
 }

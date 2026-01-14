@@ -7,7 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class Integrasi extends Model
 {
     protected $table = 'integrasi';
-    protected $guarded = [];
+    // SECURITY FIX: Explicit fillable untuk mencegah mass assignment vulnerability
+    protected $fillable = [
+        'nama_penjamin',
+        'nik_penjamin',
+        'alamat_penjamin',
+        'telepon_penjamin',
+        'nama_wbp',
+        'perkara',
+        'jenis_program',
+        'tanggal_pengajuan',
+        'status',
+        'file_surat',
+    ];
 
     // Casts for better display if needed
     protected $casts = [

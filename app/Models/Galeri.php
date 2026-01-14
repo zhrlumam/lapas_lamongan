@@ -29,20 +29,33 @@ class Galeri extends Model
     // Accessor untuk URL gambar lengkap
     public function getGambarUrlAttribute()
     {
-        // 1. Cek di storage (upload via Admin Panel baru: storage/app/public/galeri)
-        // Controller menyimpan dengan path relative: "galeri/filename.jpg"
-        if ($this->gambar && \Illuminate\Support\Facades\Storage::disk('public')->exists($this->gambar)) {
-            return asset('storage/' . $this->gambar);
+        // 1. Cek di storage (Struktur Baru atau Relative Path)
+        if ($this->gambar) {
+            // Jika path sudah ada prefix folder (misal: 'galeri/abc.jpg')
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($this->gambar)) {
+                return asset('storage/' . $this->gambar);
+            }
+            
+            // Jika hanya filename, cek di folder 'galeri'
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists('galeri/' . $this->gambar)) {
+                return asset('storage/galeri/' . $this->gambar);
+            }
+
+            // Fallback: Cek di folder 'produk' jika tertukar saat seeding
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists('produk/' . $this->gambar)) {
+                return asset('storage/produk/' . $this->gambar);
+            }
         }
 
-        // 2. Cek di public/assets (legacy manual)
+        // 2. Cek di public/assets (Legacy manual)
         if ($this->gambar && file_exists(public_path('assets/' . $this->gambar))) {
             return asset('assets/' . $this->gambar);
         }
 
-        // 3. Cek di public/uploads (legacy upload lainnya)
-        if ($this->gambar && file_exists(public_path('uploads/' . basename($this->gambar)))) {
-            return asset('uploads/' . basename($this->gambar));
+        // 3. Cek di public/uploads (Legacy upload lainnya)
+        $filename = basename($this->gambar);
+        if ($this->gambar && file_exists(public_path('uploads/' . $filename))) {
+            return asset('uploads/' . $filename);
         }
 
         // Placeholder default

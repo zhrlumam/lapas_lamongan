@@ -64,7 +64,7 @@
 
                 <!-- Content Body -->
                 <article class="prose prose-lg max-w-none text-slate-700 leading-loose text-justify prose-headings:font-black prose-headings:text-left prose-headings:text-midnight-blue prose-p:mb-6 prose-a:text-gold-dignity prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl">
-                    {!! nl2br(e($berita->isi)) !!}
+                    {!! $berita->isi !!}
                 </article>
 
             </main>
@@ -90,7 +90,7 @@
 
                     <div class="space-y-6">
                         @foreach($rekomendasi as $item)
-                        <a href="{{ route('berita.show', $item->id_berita) }}" class="group flex gap-4 items-start">
+                        <a href="{{ route('berita.show', $item) }}" class="group flex gap-4 items-start">
                             <div class="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-soft-grey">
                                 <img src="{{ $item->gambar_url }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="{{ $item->judul }}">
                             </div>

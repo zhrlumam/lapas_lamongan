@@ -31,16 +31,22 @@ class Admin extends Authenticatable
 
     public function isHumas()
     {
+        // SECURITY FIX: Super Admin harus bisa akses semua menu
+        if ($this->isSuper()) return true;
         return $this->role === 'Humas';
     }
 
     public function isPengaduan()
     {
+        // SECURITY FIX: Super Admin harus bisa akses semua menu
+        if ($this->isSuper()) return true;
         return $this->role === 'Pengaduan';
     }
 
     public function isLayanan()
     {
+        // SECURITY FIX: Super Admin harus bisa akses semua menu
+        if ($this->isSuper()) return true;
         return $this->role === 'Layanan' || $this->role === 'Registrasi';
     }
 

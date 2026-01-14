@@ -50,14 +50,14 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Visi</label>
-                        <textarea name="visi" rows="3" required 
+                        <textarea name="visi" id="visi_editor" rows="3" required 
                             class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-medium text-slate-600 focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all placeholder-slate-300">{{ old('visi', $profil->visi) }}</textarea>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Misi</label>
-                        <textarea name="misi" rows="8" required 
+                        <textarea name="misi" id="misi_editor" rows="8" required 
                             class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-medium text-slate-600 focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all placeholder-slate-300">{{ old('misi', $profil->misi) }}</textarea>
-                        <p class="mt-2 text-[10px] text-slate-400">* Gunakan baris baru untuk setiap poin misi.</p>
+                        <p class="mt-2 text-[10px] text-slate-400">* Gunakan fitur list (titik/nomor) pada editor untuk poin misi.</p>
                     </div>
                 </div>
             </div>
@@ -139,4 +139,19 @@
         </form>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const config = {
+            toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'undo', 'redo'],
+        };
+
+        ClassicEditor
+            .create(document.querySelector('#visi_editor'), config)
+            .catch(error => console.error(error));
+
+        ClassicEditor
+            .create(document.querySelector('#misi_editor'), config)
+            .catch(error => console.error(error));
+    });
+</script>
 @endsection

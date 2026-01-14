@@ -8,9 +8,25 @@ class Kunjungan extends Model
 {
     protected $table = 'kunjungan';
     protected $primaryKey = 'id';
-    public $timestamps = false; // native uses created_at timestamp default current_timestamp()
+    public $timestamps = true; // Enabled to match migration
 
-    protected $guarded = [];
+    // SECURITY FIX: Explicit fillable untuk mencegah mass assignment vulnerability
+    protected $fillable = [
+        'nama_wbp',
+        'tanggal_kunjungan',
+        'nomor_antrian',
+        'status',
+        'waktu_kunjungan',
+        'nama_pengunjung',
+        'nik',
+        'no_telp',
+        'barang_bawaan',
+        'alamat',
+        'jk',
+        'hubungan',
+        'check_in_at',
+        'check_out_at',
+    ];
 
     public function pengunjung()
     {

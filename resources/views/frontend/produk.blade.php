@@ -70,15 +70,15 @@
                             {{ $p->deskripsi }}
                         </p>
                         <div class="mt-auto flex flex-col gap-2">
-                           <a href="https://wa.me/6282142565696?text={{ urlencode('Halo Admin, saya tertarik dengan produk *'.$p->nama_produk.'*. Apakah masih tersedia?') }}" target="_blank" onclick="event.stopPropagation()" class="w-full bg-[#25D366] text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#128C7E] transition-all shadow-lg shadow-green-200">
+                           <a href="https://wa.me/6282142565696?text={{ urlencode('Halo Admin, saya tertarik dengan produk *'.$p->nama_produk.'*. Apakah masih tersedia?') }}" target="_blank" onclick="event.stopPropagation()" class="w-full bg-midnight-blue text-white py-3 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-gold-dignity hover:text-midnight-blue transition-all shadow-lg">
                                 <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
                                 Pesan Sekarang
                            </a>
                            <div class="flex items-center justify-between mt-1">
                                 <span class="text-[9px] font-bold text-dark-grey/30 uppercase tracking-widest">Lihat Detail</span>
-                                <div class="flex items-center gap-1.5 grayscale opacity-50">
-                                    <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-                                    <span class="text-[8px] font-black text-emerald-600 uppercase tracking-tighter">Ready Stock</span>
+                                <div class="flex items-center gap-1.5">
+                                    <div class="w-1.5 h-1.5 bg-gold-dignity rounded-full animate-pulse"></div>
+                                    <span class="text-[8px] font-black text-gold-dignity uppercase tracking-tighter">Ready Stock</span>
                                 </div>
                            </div>
                         </div>
@@ -160,7 +160,7 @@
                         </div>
 
                         <div class="mt-8 pt-8 border-t border-platinum">
-                            <a id="modalWhatsapp" href="#" target="_blank" class="flex items-center justify-center gap-3 w-full bg-[#25D366] hover:bg-[#128C7E] text-white py-4 rounded-xl shadow-lg shadow-green-200 hover:shadow-green-300 transition-all transform hover:-translate-y-1 group">
+                            <a id="modalWhatsapp" href="#" target="_blank" class="flex items-center justify-center gap-3 w-full bg-midnight-blue hover:bg-gold-dignity text-white hover:text-midnight-blue py-4 rounded-xl shadow-lg transition-all transform hover:-translate-y-1 group">
                                 <i data-lucide="phone" class="w-5 h-5 fill-current"></i>
                                 <span class="text-xs font-black uppercase tracking-[0.2em]">Hubungi via WhatsApp</span>
                             </a>

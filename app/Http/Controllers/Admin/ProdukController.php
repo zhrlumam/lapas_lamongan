@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Produk;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
@@ -34,8 +34,8 @@ class ProdukController extends Controller
                 // Sanitasi nama file agar aman
                 $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
                 
-                $file->move(public_path('uploads'), $filename);
-                $validated['gambar'] = $filename;
+                $path = $file->storeAs('produk', $filename, 'public');
+                $validated['gambar'] = basename($path);
             }
 
             // 3. Simpan Database
@@ -79,13 +79,21 @@ class ProdukController extends Controller
                 $file = $request->file('gambar');
                 $filename = time() . '_' . Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
 
-                // Hapus gambar lama jika ada untuk menghemat space
-                if ($item->gambar && File::exists(public_path('uploads/' . $item->gambar))) {
-                    File::delete(public_path('uploads/' . $item->gambar));
+                // Hapus gambar lama dari berbagai kemungkinan lokasi (Modern & Legacy)
+                $oldImage = $item->gambar;
+                if ($oldImage) {
+                    // 1. Cek di storage/app/public/produk/
+                    if (Storage::disk('public')->exists('produk/' . $oldImage)) {
+                        Storage::disk('public')->delete('produk/' . $oldImage);
+                    }
+                    // 2. Cek di public/uploads/
+                    if (file_exists(public_path('uploads/' . $oldImage))) {
+                        @unlink(public_path('uploads/' . $oldImage));
+                    }
                 }
                 
-                $file->move(public_path('uploads'), $filename);
-                $validated['gambar'] = $filename;
+                $path = $file->storeAs('produk', $filename, 'public');
+                $validated['gambar'] = basename($path);
             } else {
                 // Jangan update kolom gambar jika tidak ada file baru
                 unset($validated['gambar']);
@@ -109,9 +117,17 @@ class ProdukController extends Controller
         try {
             $item = Produk::findOrFail($id);
             
-            // Hapus fisik file gambar agar server tidak penuh sampah
-            if ($item->gambar && File::exists(public_path('uploads/' . $item->gambar))) {
-                File::delete(public_path('uploads/' . $item->gambar));
+            // Hapus fisik file gambar dari berbagai lokasi
+            $oldImage = $item->gambar;
+            if ($oldImage) {
+                // 1. Modern Storage
+                if (Storage::disk('public')->exists('produk/' . $oldImage)) {
+                    Storage::disk('public')->delete('produk/' . $oldImage);
+                }
+                // 2. Legacy Uploads
+                if (file_exists(public_path('uploads/' . $oldImage))) {
+                    @unlink(public_path('uploads/' . $oldImage));
+                }
             }
 
             $item->delete();

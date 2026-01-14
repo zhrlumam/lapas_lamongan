@@ -17,25 +17,22 @@
         </h3>
     </div>
 
-    <div class="table-container">
-        <table class="w-full">
-            <thead>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-soft-grey text-[10px] font-black text-slate-400 uppercase tracking-widest">
                 <tr>
-                    <th class="w-16 text-center">No</th>
-                    <th class="text-left">Konten Berita</th>
-                    <th class="text-left">Tanggal</th>
-                    <th class="text-right">Aksi</th>
+                    <th class="px-6 py-4 border-b border-platinum">Konten Berita</th>
+                    <th class="px-6 py-4 border-b border-platinum text-center">Tanggal</th>
+                    <th class="px-6 py-4 border-b border-platinum text-center">Status</th>
+                    <th class="px-6 py-4 border-b border-platinum text-right">Aksi</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-platinum">
-                @forelse($berita as $i => $item)
-                <tr class="hover:bg-soft-grey/50 transition-colors group">
-                    <td class="text-center">
-                        <span class="text-[10px] font-bold text-slate-400">#{{ $i + 1 }}</span>
-                    </td>
-                    <td>
+                @forelse($berita as $item)
+                <tr class="hover:bg-soft-grey/30 transition-colors group">
+                    <td class="px-6 py-4">
                         <div class="flex items-center gap-4">
-                            <div class="w-16 h-12 bg-slate-200 rounded border border-platinum overflow-hidden flex-shrink-0">
+                            <div class="w-16 h-12 bg-platinum rounded overflow-hidden flex-shrink-0 border border-platinum relative">
                                 <img src="{{ $item->gambar_url }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                             </div>
                             <div>
@@ -44,18 +41,29 @@
                             </div>
                         </div>
                     </td>
-                    <td>
-                        <div class="flex items-center gap-2">
+                    <td class="px-6 py-4 text-center">
+                        <div class="flex items-center justify-center gap-2">
                             <i data-lucide="calendar" class="w-3 h-3 text-gold-dignity"></i>
                             <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wide">{{ \Carbon\Carbon::parse($item->tanggal)->format('d M Y') }}</span>
                         </div>
                     </td>
-                    <td>
+                    <td class="px-6 py-4 text-center">
+                        @if($item->status === 'published')
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-emerald-50 text-emerald-600 border border-emerald-100 text-[9px] font-bold uppercase tracking-wider">
+                                <i data-lucide="check-circle" class="w-3 h-3"></i> Live
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-slate-100 text-slate-500 border border-slate-200 text-[9px] font-bold uppercase tracking-wider">
+                                <i data-lucide="file" class="w-3 h-3"></i> Draft
+                            </span>
+                        @endif
+                    </td>
+                    <td class="px-6 py-4">
                         <div class="flex justify-end gap-2">
-                            <a href="{{ route('admin.berita.edit', $item->id_berita) }}" class="w-8 h-8 flex items-center justify-center rounded border border-platinum text-slate-500 hover:bg-midnight-blue hover:text-white hover:border-midnight-blue transition-all" title="Edit">
+                            <a href="{{ route('admin.berita.edit', $item) }}" class="w-8 h-8 flex items-center justify-center rounded border border-platinum text-slate-500 hover:bg-midnight-blue hover:text-white hover:border-midnight-blue transition-all" title="Edit">
                                 <i data-lucide="edit-3" class="w-4 h-4"></i>
                             </a>
-                            <form action="{{ route('admin.berita.destroy', $item->id_berita) }}" method="POST">
+                            <form action="{{ route('admin.berita.destroy', $item) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="w-8 h-8 flex items-center justify-center rounded border border-platinum text-slate-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-all" title="Hapus">
@@ -67,12 +75,10 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" class="px-6 py-12 text-center">
-                        <div class="flex flex-col items-center justify-center">
-                            <div class="w-16 h-16 bg-soft-grey rounded-full flex items-center justify-center mb-4">
-                                <i data-lucide="file-x" class="w-8 h-8 text-slate-300"></i>
-                            </div>
-                            <p class="text-[11px] font-black text-slate-400 uppercase tracking-widest">Belum ada berita yang diterbitkan</p>
+                    <td colspan="4" class="px-6 py-12 text-center text-slate-400">
+                        <div class="flex flex-col items-center gap-2">
+                            <i data-lucide="file-x" class="w-8 h-8 mb-1 opacity-50"></i>
+                            <span class="text-[11px] font-bold uppercase tracking-widest">Belum ada berita tersedia</span>
                         </div>
                     </td>
                 </tr>

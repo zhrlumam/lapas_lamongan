@@ -103,7 +103,6 @@ class CleanupAndSeeder extends Seeder
                     Pengaduan::create([
                         'kode_tiket' => strtoupper($faker->bothify('TKT-####')),
                         'nama_pelapor' => $faker->name,
-                        'email_pelapor' => $faker->email,
                         'kontak_pelapor' => $faker->phoneNumber,
                         'judul_pengaduan' => $faker->sentence,
                         'isi_pengaduan' => $faker->paragraph,

@@ -80,10 +80,14 @@ class IntegrasiController extends Controller
             'nama_wbp' => 'required|string|max:255',
         ]);
 
+        // SECURITY FIX: Sanitasi input
+        $nik = preg_replace('/[^0-9]/', '', $request->nik); // Hanya angka
+        $namaWbp = strip_tags($request->nama_wbp); // Hapus HTML tags
+
         $user = Auth::guard('penjamin')->user();
         $user->update([
-            'nik' => $request->nik,
-            'nama_wbp' => $request->nama_wbp,
+            'nik' => $nik,
+            'nama_wbp' => $namaWbp,
         ]);
 
         return redirect()->route('integrasi.dashboard')->with('success', 'Profil berhasil dilengkapi. Sekarang Anda bisa login menggunakan NIK Anda.');

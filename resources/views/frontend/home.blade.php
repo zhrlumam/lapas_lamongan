@@ -4,24 +4,26 @@
 
 @section('content')
     <!-- Top Bar Info -->
-    <div class="bg-platinum border-b border-platinum py-2 px-4 block">
-        <div class="max-w-7xl mx-auto flex justify-between text-[11px] font-bold uppercase tracking-widest text-midnight-blue">
+    <div class="bg-platinum border-b border-platinum py-1 px-6 block">
+        <div class="max-w-5xl mx-auto flex justify-between text-[10px] font-bold uppercase tracking-widest text-midnight-blue/60">
             <span>Republik Indonesia</span>
             <span id="currentDate"></span>
         </div>
     </div>
 
-    <!-- Running Text Informasi -->
+    <!-- Running Text Informasi (Full Width / Pojok ke Pojok) -->
     @if($informasi->count() > 0)
-    <div class="bg-midnight-blue py-2 overflow-hidden border-b border-white/10">
-        <div class="max-w-7xl mx-auto px-4 flex items-center">
-            <div class="bg-gold-dignity text-midnight-blue text-[10px] font-bold px-2 py-1 rounded mr-4 whitespace-nowrap uppercase">Info Terkini</div>
-            <div class="marquee-container overflow-hidden whitespace-nowrap">
-                <div class="marquee-content inline-block animate-marquee text-white text-xs font-medium">
+    <div class="bg-midnight-blue py-2 overflow-hidden border-b border-white/10 w-full">
+        <div class="flex items-center w-full">
+            <div class="bg-gold-dignity text-midnight-blue text-[10px] font-black px-4 py-1.5 rounded-r mr-4 whitespace-nowrap uppercase shadow-lg z-20">Info Terkini</div>
+            <div class="marquee-container overflow-hidden whitespace-nowrap w-full">
+                <div class="marquee-content inline-block animate-marquee text-white text-xs font-medium py-1">
                     @foreach($informasi as $info)
-                        <span class="mx-8">
-                            <a href="{{ $info->link_tujuan != '#' ? $info->link_tujuan : 'javascript:void(0)' }}" class="hover:text-gold-dignity transition">
-                                {{ $info->judul_info }}: {{ $info->deskripsi_singkat }}
+                        <span class="mx-12">
+                            <a href="{{ $info->link_tujuan != '#' ? $info->link_tujuan : 'javascript:void(0)' }}" class="hover:text-gold-dignity transition inline-flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 bg-gold-dignity rounded-full"></span>
+                                <span class="font-bold text-platinum">{{ $info->judul_info }}:</span>
+                                <span class="text-white/80 uppercase">{{ $info->deskripsi_singkat }}</span>
                             </a>
                         </span>
                     @endforeach
@@ -58,9 +60,9 @@
                 
                 <img :src="slide.image" class="absolute inset-0 w-full h-full object-cover grayscale-[0.2]" alt="Hero Image">
                 
-                <div class="relative z-20 max-w-7xl mx-auto h-full flex flex-col justify-center px-6 lg:px-12 text-left">
-                    <span class="text-gold-dignity font-black uppercase text-[11px] tracking-[0.4em] mb-4 block animate-[fadeInUp_1s_ease-out_0.2s_both]" x-text="'Lapas Kelas IIB Lamongan'"></span>
-                    <h2 class="text-white text-4xl lg:text-7xl font-black uppercase tracking-tighter leading-tight max-w-3xl mb-6 animate-[fadeInUp_1s_ease-out_0.4s_both]" x-text="slide.title"></h2>
+                <div class="relative z-20 max-w-5xl mx-auto h-full flex flex-col justify-center px-6 text-left">
+                    <span class="text-gold-dignity font-black uppercase text-[10px] tracking-[0.4em] mb-4 block animate-[fadeInUp_1s_ease-out_0.2s_both]" x-text="'Lapas Kelas IIB Lamongan'"></span>
+                    <h2 class="text-white text-4xl lg:text-6xl font-black uppercase tracking-tighter leading-tight max-w-3xl mb-6 animate-[fadeInUp_1s_ease-out_0.4s_both]" x-text="slide.title"></h2>
                     <p class="text-platinum/80 text-lg lg:text-xl font-medium max-w-xl leading-relaxed mb-10 animate-[fadeInUp_1s_ease-out_0.6s_both]" x-text="slide.sub"></p>
                     <div class="flex flex-wrap gap-4 animate-[fadeInUp_1s_ease-out_0.8s_both]">
                         <a href="{{ route('profile') }}" class="bg-gold-dignity text-midnight-blue px-8 py-4 rounded-sm font-black text-xs uppercase tracking-widest hover:bg-white transition-all duration-300">Profil Instansi</a>
@@ -82,15 +84,14 @@
 
     </section>
 
-    <!-- Main Features Grid -->
-    <section class="max-w-7xl mx-auto px-6 -mt-16 relative z-20 mb-20">
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-0 shadow-2xl bg-white rounded-sm overflow-hidden border border-platinum divide-x divide-platinum">
+    <!-- Main Features Grid (Ukuran disesuaikan dengan Score Indeks max-w-5xl) -->
+    <section class="max-w-5xl mx-auto px-6 -mt-16 relative z-20 mb-10">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-0 shadow-2xl bg-white rounded-sm overflow-hidden border border-platinum divide-x divide-platinum">
             @php
                 $features = [
                     ['icon' => 'calendar-days', 'label' => 'Kunjungan Online', 'link' => route('kunjungan'), 'sub' => 'Daftar Antrean'],
                     ['icon' => 'file-check', 'label' => 'Layanan Integrasi', 'link' => route('integrasi.login'), 'sub' => 'PB / CB / CMB'],
                     ['icon' => 'message-square-warning', 'label' => 'WBS Pengaduan', 'link' => route('pengaduan'), 'sub' => 'Lapor Masalah'],
-                    ['icon' => 'info', 'label' => 'Informasi Publik', 'link' => route('berita.index'), 'sub' => 'Informasi Terkini'],
                     ['icon' => 'building-2', 'label' => 'Profil Instansi', 'link' => route('profile'), 'sub' => 'Struktur & Tupoksi'],
                 ];
             @endphp
@@ -109,12 +110,25 @@
     </section>
 
     <!-- Profile Snippet Section -->
-    <section class="py-24 px-6 bg-white reveal-on-scroll">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+    <section class="pt-16 pb-24 px-6 bg-white reveal-on-scroll border-b border-platinum/50">
+        <div class="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div class="relative">
                 <div class="absolute -top-10 -left-10 w-40 h-40 bg-soft-grey rounded-3xl -z-10 bg-[radial-gradient(#C5A059_1px,transparent_1px)] [background-size:20px_20px] opacity-20"></div>
-                <div class="aspect-video bg-midnight-blue rounded-sm overflow-hidden border-[12px] border-soft-grey shadow-2xl">
-                    <img src="{{ asset('assets/profil.jpg') }}" class="w-full h-full object-cover grayscale" alt="Lapas Profile">
+                <div class="aspect-video bg-midnight-blue rounded-sm overflow-hidden border-[12px] border-soft-grey shadow-2xl group relative">
+                    <iframe 
+                        class="w-full h-full" 
+                        src="https://www.youtube.com/embed/YdP6vG924Tw?autoplay=0&rel=0&modestbranding=1" 
+                        title="Video Profile Lapas Lamongan" 
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
+                    <!-- Premium Overlay Tag -->
+                    <div class="absolute top-4 left-4 bg-gold-dignity px-3 py-1 rounded-sm shadow-lg pointer-events-none">
+                        <span class="text-[9px] font-black text-midnight-blue uppercase tracking-widest flex items-center gap-2">
+                             <i data-lucide="play-circle" class="w-3 h-3"></i> Video Profil
+                        </span>
+                    </div>
                 </div>
                 <div class="absolute -bottom-10 -right-10 bg-gold-dignity p-10 rounded-sm shadow-xl hidden md:block">
                     <p class="text-[32px] font-black text-midnight-blue leading-none">1980</p>
@@ -144,9 +158,9 @@
         </div>
     </section>
 
-    <!-- Stats Section -->
+    <!-- Stats Section (Ukuran disesuaikan dengan Score Indeks max-w-5xl) -->
     <section class="py-24 bg-midnight-blue border-y border-white/5 reveal-on-scroll">
-        <div class="max-w-7xl mx-auto px-6">
+        <div class="max-w-5xl mx-auto px-6">
             <div class="text-center mb-16">
                 <span class="text-gold-dignity font-black uppercase text-[11px] tracking-[0.4em]">Transparansi</span>
                 <h2 class="text-4xl font-black text-white mt-4 uppercase tracking-tighter">Statistik Penghuni Terkini</h2>
@@ -239,7 +253,7 @@
     
     <!-- Service & Visiting Schedule Section -->
     <section class="py-24 px-6 bg-soft-grey border-y border-platinum reveal-on-scroll">
-        <div class="max-w-7xl mx-auto">
+        <div class="max-w-5xl mx-auto">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
                 <div class="lg:col-span-4">
                     <span class="text-gold-dignity font-black uppercase text-[11px] tracking-[0.4em] mb-4 block">Operasional</span>
@@ -254,6 +268,17 @@
                         <div>
                             <span class="block text-[10px] font-black text-midnight-blue uppercase">Status Saat Ini</span>
                             <span class="block text-xs font-bold text-green-600 uppercase tracking-widest">Layanan Dibuka</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Live Antrean Badge -->
+                    <div class="mt-4 flex items-center gap-4 p-4 bg-midnight-blue border border-gold-dignity/30 rounded-sm shadow-xl">
+                        <div class="w-10 h-10 bg-gold-dignity text-midnight-blue rounded-full flex items-center justify-center">
+                            <i data-lucide="users" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] font-black text-platinum/60 uppercase">Antrean Hari Ini</span>
+                            <span class="block text-lg font-black text-gold-dignity uppercase tracking-tighter">{{ $antrean_hari_ini }} Orang Terdaftar</span>
                         </div>
                     </div>
                 </div>
@@ -291,17 +316,31 @@
                                 <h4 class="text-sm font-black text-white uppercase">Kunjungan Tatap Muka</h4>
                             </div>
                             <div class="space-y-4">
-                                <div class="flex justify-between items-center pb-2 border-b border-white/10">
-                                    <span class="text-xs font-medium text-platinum/60">Pagi (08:30 - 11:30)</span>
-                                    <span class="text-xs font-black text-gold-dignity uppercase">Senin - Kamis</span>
+                                <div class="flex justify-between items-start pb-2 border-b border-white/10">
+                                    <div class="space-y-1">
+                                        <span class="text-xs font-black text-gold-dignity uppercase block">• Sesi Pagi</span>
+                                        <span class="text-[10px] text-platinum/60 font-medium">08:30 - 11:30 WIB</span>
+                                    </div>
+                                    <span class="text-[10px] font-black text-platinum/40 uppercase tracking-widest mt-1">Senin - Kamis</span>
+                                </div>
+                                <div class="flex justify-between items-start pb-2 border-b border-white/10">
+                                    <div class="space-y-1">
+                                        <span class="text-xs font-black text-gold-dignity uppercase block">• Sesi Siang</span>
+                                        <span class="text-[10px] text-platinum/60 font-medium">13:30 - 15:00 WIB</span>
+                                    </div>
+                                    <span class="text-[10px] font-black text-platinum/40 uppercase tracking-widest mt-1">Senin - Kamis</span>
                                 </div>
                                 <div class="flex justify-between items-center pb-2 border-b border-white/10">
-                                    <span class="text-xs font-medium text-platinum/60">Siang (13:30 - 15:00)</span>
-                                    <span class="text-xs font-black text-gold-dignity uppercase">Maks 30 Menit</span>
+                                    <span class="text-[10px] font-black text-platinum/40 uppercase tracking-widest">Durasi Kunjungan</span>
+                                    <span class="text-xs font-black text-gold-dignity uppercase tracking-widest">Maks 30 Menit</span>
+                                </div>
+                                <div class="flex justify-between items-center pb-2 border-b border-white/10">
+                                    <span class="text-[10px] font-black text-platinum/40 uppercase tracking-widest">Frekuensi Kunjungan</span>
+                                    <span class="text-[10px] font-black text-platinum uppercase tracking-tighter">Maks 1 Kali / Hari</span>
                                 </div>
                                 <div class="flex justify-between items-center">
                                     <span class="text-[10px] font-black text-platinum/40 uppercase tracking-widest">Khusus Hari Jumat</span>
-                                    <span class="text-[10px] font-black text-white uppercase tracking-widest">Libur</span>
+                                    <span class="text-[10px] font-black text-white uppercase tracking-widest bg-red-600 px-2 py-0.5 rounded-sm shadow-sm ring-1 ring-white/20">LIBUR</span>
                                 </div>
                             </div>
                         </div>
@@ -312,46 +351,123 @@
     </section>
 
 
-    <!-- Berita Terkini Section -->
-    <section class="py-24 px-6 bg-soft-grey reveal-on-scroll">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex items-end justify-between mb-16 px-2">
+    <!-- Berita Terkini Section (PPID Style) -->
+    <section class="py-24 px-6 bg-white reveal-on-scroll">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex items-end justify-between mb-12 px-2">
                 <div>
-                    <span class="text-gold-dignity font-black uppercase text-[11px] tracking-[0.4em] mb-4 block">Update</span>
-                    <h2 class="text-4xl lg:text-5xl font-black text-midnight-blue uppercase tracking-tighter">Berita Terbaru</h2>
+                    <span class="text-gold-dignity font-black uppercase text-[11px] tracking-[0.4em] mb-4 block">Update Terkini</span>
+                    <h2 class="text-4xl lg:text-5xl font-black text-midnight-blue uppercase tracking-tighter">Berita & Informasi</h2>
                 </div>
-                <a href="{{ route('berita.index') }}" class="hidden md:inline-flex items-center gap-4 text-midnight-blue font-black uppercase text-[11px] tracking-widest border-b border-midnight-blue pb-2 hover:text-gold-dignity hover:border-gold-dignity transition-all">
-                    Lihat Semua <i data-lucide="plus" class="w-4 h-4"></i>
+                <a href="{{ route('berita.index') }}" class="hidden md:inline-flex items-center gap-2 text-midnight-blue font-bold text-sm hover:text-gold-dignity transition-colors group">
+                    Lihat Semua 
+                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </a>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-                @foreach($berita as $row)
-                <article class="group bg-white rounded-sm border border-platinum p-6 hover:shadow-2xl transition-all duration-500">
-                    <div class="aspect-video overflow-hidden mb-6 rounded-sm">
-                        <img src="{{ $row->gambar_url }}" alt="{{ $row->judul }}" loading="lazy" class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700">
+            @if($berita->count() > 0)
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8" x-data="newsCarousel()">
+                <!-- Featured Article Carousel (Large) -->
+                <div class="lg:row-span-3 relative overflow-hidden rounded group" @mouseenter="pauseSlide()" @mouseleave="resumeSlide()" style="min-height: 400px;">
+                        @foreach($berita as $idx => $item)
+                        <article x-show="currentSlide === {{ $idx }}" 
+                                 x-transition:enter="transition ease-out duration-500"
+                                 x-transition:enter-start="opacity-0"
+                                 x-transition:enter-end="opacity-100"
+                                 x-transition:leave="transition ease-in duration-500"
+                                 x-transition:leave-start="opacity-100"
+                                 x-transition:leave-end="opacity-0"
+                                 class="absolute inset-0 bg-soft-grey hover:shadow-2xl transition-shadow duration-500">
+                            <a href="{{ route('berita.show', $item) }}" class="block h-full">
+                                <div class="aspect-[16/10] overflow-hidden relative">
+                                    <img src="{{ $item->gambar_url }}" alt="{{ $item->judul }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-midnight-blue/80 via-midnight-blue/20 to-transparent"></div>
+                                    <div class="absolute bottom-0 left-0 right-0 p-6">
+                                        <span class="inline-block text-[10px] font-bold text-white bg-gold-dignity px-3 py-1 rounded-full mb-3 uppercase tracking-wider">
+                                            Unggulan
+                                        </span>
+                                        <h3 class="text-2xl font-black text-white leading-tight mb-2 line-clamp-2">{{ $item->judul }}</h3>
+                                        <div class="flex items-center gap-3 text-white/80 text-xs">
+                                            <span class="flex items-center gap-1">
+                                                <i data-lucide="calendar" class="w-3 h-3"></i>
+                                                {{ date('d M Y', strtotime($item->tanggal)) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </article>
+                        @endforeach
+
+                        <!-- Carousel Navigation Dots -->
+                        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2 z-10">
+                            @foreach($berita as $idx => $item)
+                            <button @click="goToSlide({{ $idx }})" 
+                                    :class="currentSlide === {{ $idx }} ? 'bg-gold-dignity w-8' : 'bg-white/50 w-2'"
+                                    class="h-2 rounded-full transition-all duration-300 hover:bg-gold-dignity"></button>
+                            @endforeach
+                        </div>
+
+                        <!-- Carousel Arrows -->
+                        <button @click="prevSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/40 text-white p-2 rounded-full transition-all z-10">
+                            <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                        </button>
+                        <button @click="nextSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 backdrop-blur-sm hover:bg-white/40 text-white p-2 rounded-full transition-all z-10">
+                            <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                        </button>
                     </div>
-                    <div class="space-y-4">
-                        <span class="text-[9px] font-black text-gold-dignity uppercase tracking-widest bg-gold-dignity/5 px-2 py-1 rounded">{{ date('d M Y', strtotime($row->tanggal)) }}</span>
-                        <h3 class="text-lg font-black text-midnight-blue group-hover:text-gold-dignity transition-colors leading-tight line-clamp-2 min-h-[3rem]">{{ $row->judul }}</h3>
-                        <a href="{{ route('berita.show', $row->id_berita) }}" class="inline-flex items-center gap-2 text-[10px] font-black text-midnight-blue uppercase tracking-widest group-hover:translate-x-3 transition-all">
-                            Baca Berita <i data-lucide="chevron-right" class="w-4 h-4 text-gold-dignity"></i>
+                @foreach($berita->skip(1)->take(3) as $row)
+                    <!-- Regular Articles (Small) -->
+                    <article class="group bg-white border border-platinum rounded overflow-hidden hover:shadow-xl hover:border-gold-dignity/30 transition-all duration-300">
+                        <a href="{{ route('berita.show', $row) }}" class="flex gap-4 p-4">
+                            <div class="w-32 h-24 flex-shrink-0 overflow-hidden rounded">
+                                <img src="{{ $row->gambar_url }}" alt="{{ $row->judul }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="flex-1 flex flex-col justify-between min-w-0">
+                                <div>
+                                    <span class="text-[9px] font-bold text-gold-dignity uppercase tracking-wider mb-1 block">
+                                        {{ date('d M Y', strtotime($row->tanggal)) }}
+                                    </span>
+                                    <h3 class="text-sm font-bold text-midnight-blue group-hover:text-gold-dignity transition-colors leading-tight line-clamp-2">
+                                        {{ $row->judul }}
+                                    </h3>
+                                </div>
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-midnight-blue uppercase tracking-wider mt-2 group-hover:gap-2 transition-all">
+                                    Baca <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                                </span>
+                            </div>
                         </a>
-                    </div>
-                </article>
+                    </article>
                 @endforeach
             </div>
+
+            <!-- Mobile "Lihat Semua" Button -->
+            <div class="mt-8 text-center md:hidden">
+                <a href="{{ route('berita.index') }}" class="inline-flex items-center gap-2 text-midnight-blue font-bold text-sm border-2 border-midnight-blue px-6 py-3 rounded hover:bg-midnight-blue hover:text-white transition-all">
+                    Lihat Semua Berita
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+            @else
+            <div class="text-center py-20">
+                <div class="w-24 h-24 bg-soft-grey rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="newspaper" class="w-12 h-12 text-dark-grey/20"></i>
+                </div>
+                <h3 class="text-xl font-black text-midnight-blue uppercase tracking-tight mb-2">Belum Ada Berita</h3>
+                <p class="text-sm text-dark-grey/60">Berita terbaru akan segera ditampilkan di sini</p>
+            </div>
+            @endif
         </div>
     </section>
 
     <!-- Galeri Pilihan Section -->
     @if($galeri->count() > 0)
     <section class="py-24 px-6 bg-white reveal-on-scroll">
-        <div class="max-w-7xl mx-auto text-center mb-16">
+        <div class="max-w-5xl mx-auto text-center mb-16">
             <span class="text-gold-dignity font-black uppercase text-[11px] tracking-[0.4em]">Visualitas</span>
             <h2 class="text-4xl font-black text-midnight-blue mt-4 uppercase tracking-tighter">Lensa Kegiatan</h2>
         </div>
-        <div class="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 mb-16">
+        <div class="max-w-5xl mx-auto grid grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 mb-16">
             @foreach($galeri as $g)
             <div class="group relative overflow-hidden aspect-[4/3] rounded-sm bg-midnight-blue ring-1 ring-platinum">
                 <img src="{{ $g->gambar_url }}" loading="lazy" class="w-full h-full object-cover opacity-80 grayscale group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" alt="{{ $g->judul }}">
@@ -372,7 +488,7 @@
     <!-- Produk Pilihan Section -->
     @if($produk->count() > 0)
     <section class="py-24 px-6 bg-midnight-blue reveal-on-scroll">
-        <div class="max-w-7xl mx-auto">
+        <div class="max-w-5xl mx-auto">
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-4">
                 <div>
                     <span class="text-gold-dignity font-black uppercase text-[11px] tracking-[0.4em] mb-4 block">Katalog</span>
@@ -389,7 +505,7 @@
                     </div>
                     <div>
                         <span class="text-[9px] font-black text-gold-dignity uppercase tracking-widest mb-1 block">{{ $p->kategori }}</span>
-                        <h3 class="text-base font-black text-white mb-2 leading-tight h-10 line-clamp-2">{{ $p->nama_produk }}</h3>
+                        <h3 class="text-base font-black text-white mb-2 leading-tight min-h-[3rem] line-clamp-2">{{ $p->nama_produk }}</h3>
                         <div class="flex items-center gap-2 mb-4">
                             <div class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
                             <span class="text-[8px] font-black text-emerald-500 uppercase tracking-tighter">Ready Stock</span>
@@ -410,7 +526,7 @@
     
     <!-- Visitor Statistics Section -->
     <section class="py-12 bg-white border-t border-platinum">
-        <div class="max-w-7xl mx-auto px-6">
+        <div class="max-w-5xl mx-auto px-6">
             <div class="flex flex-col md:flex-row items-center justify-between gap-8 py-8 px-12 bg-soft-grey rounded-3xl border border-platinum relative overflow-hidden group">
                 <!-- Decorative element -->
                 <div class="absolute top-0 right-0 w-64 h-64 bg-gold-dignity/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl group-hover:bg-gold-dignity/10 transition-colors duration-700"></div>
@@ -450,9 +566,162 @@
         </div>
     </section>
 
+    <!-- Rating Layanan Section -->
+    <section class="py-24 px-6 bg-white border-t border-platinum reveal-on-scroll">
+        <div class="max-w-4xl mx-auto">
+            <div class="text-center mb-12">
+                <span class="text-gold-dignity font-black uppercase text-[11px] tracking-[0.4em] mb-4 block">Feedback</span>
+                <h2 class="text-4xl font-black text-midnight-blue uppercase tracking-tighter mb-4">Penilaian Layanan</h2>
+                <p class="text-sm text-dark-grey/60 leading-relaxed max-w-2xl mx-auto">
+                    Bantu kami meningkatkan kualitas pelayanan dengan memberikan penilaian Anda
+                </p>
+            </div>
+
+            @if(session('success_rating'))
+            <div class="mb-8 p-6 bg-emerald-50 border border-emerald-100 rounded-xl text-center">
+                <div class="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="check" class="w-8 h-8 text-white"></i>
+                </div>
+                <p class="text-sm font-bold text-emerald-700">{{ session('success_rating') }}</p>
+            </div>
+            @endif
+
+            <div class="bg-soft-grey border border-platinum rounded-2xl p-8 md:p-12">
+                <form action="{{ route('rating.store') }}" method="POST" class="space-y-8">
+                    @csrf
+                    <input type="hidden" name="jenis_layanan" value="Website Beranda">
+
+                    <!-- Rating Stars -->
+                    <div class="text-center">
+                        <label class="block text-sm font-black text-midnight-blue uppercase tracking-widest mb-6">
+                            Berikan Penilaian Anda
+                        </label>
+                        <div class="flex justify-center gap-4 mb-2" id="ratingStars">
+                            <input type="radio" name="rating" value="1" id="star1" class="hidden" required>
+                            <label for="star1" class="cursor-pointer text-5xl text-platinum hover:text-gold-dignity transition-colors" data-rating="1">★</label>
+                            
+                            <input type="radio" name="rating" value="2" id="star2" class="hidden">
+                            <label for="star2" class="cursor-pointer text-5xl text-platinum hover:text-gold-dignity transition-colors" data-rating="2">★</label>
+                            
+                            <input type="radio" name="rating" value="3" id="star3" class="hidden">
+                            <label for="star3" class="cursor-pointer text-5xl text-platinum hover:text-gold-dignity transition-colors" data-rating="3">★</label>
+                            
+                            <input type="radio" name="rating" value="4" id="star4" class="hidden">
+                            <label for="star4" class="cursor-pointer text-5xl text-platinum hover:text-gold-dignity transition-colors" data-rating="4">★</label>
+                            
+                            <input type="radio" name="rating" value="5" id="star5" class="hidden">
+                            <label for="star5" class="cursor-pointer text-5xl text-platinum hover:text-gold-dignity transition-colors" data-rating="5">★</label>
+                        </div>
+                        <p class="text-xs text-dark-grey/40 font-medium" id="ratingText">Pilih bintang untuk memberikan penilaian</p>
+                        @error('rating')
+                            <p class="text-xs text-red-600 mt-2">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Nama (Optional) -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                            Nama Anda (Opsional)
+                        </label>
+                        <input type="text" name="nama" value="{{ old('nama') }}" 
+                               placeholder="Masukkan nama Anda..."
+                               class="w-full px-4 py-3 bg-white border border-platinum rounded text-sm font-medium text-midnight-blue focus:ring-2 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all">
+                    </div>
+
+                    <!-- Komentar (Optional) -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+                            Komentar & Saran (Opsional)
+                        </label>
+                        <textarea name="komentar" rows="4" 
+                                  placeholder="Bagikan pengalaman Anda menggunakan layanan kami..."
+                                  class="w-full px-4 py-3 bg-white border border-platinum rounded text-sm font-medium text-slate-600 focus:ring-2 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all resize-none">{{ old('komentar') }}</textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center pt-4">
+                        <button type="submit" class="bg-midnight-blue text-white px-12 py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-gold-dignity hover:text-midnight-blue transition-all shadow-lg inline-flex items-center gap-3">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                            Kirim Penilaian
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Rating Stars Interaction
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('#ratingStars label');
+            const ratingText = document.getElementById('ratingText');
+            const ratingTexts = {
+                1: 'Sangat Tidak Puas',
+                2: 'Tidak Puas',
+                3: 'Cukup Puas',
+                4: 'Puas',
+                5: 'Sangat Puas'
+            };
+
+            stars.forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = this.getAttribute('data-rating');
+                    updateStars(rating);
+                    ratingText.textContent = ratingTexts[rating];
+                    ratingText.classList.add('text-gold-dignity', 'font-bold');
+                });
+
+                star.addEventListener('mouseenter', function() {
+                    const rating = this.getAttribute('data-rating');
+                    highlightStars(rating);
+                });
+            });
+
+            document.getElementById('ratingStars').addEventListener('mouseleave', function() {
+                const checkedStar = document.querySelector('#ratingStars input:checked');
+                if (checkedStar) {
+                    updateStars(checkedStar.value);
+                } else {
+                    resetStars();
+                }
+            });
+
+            function updateStars(rating) {
+                stars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.classList.add('text-gold-dignity');
+                        star.classList.remove('text-platinum');
+                    } else {
+                        star.classList.remove('text-gold-dignity');
+                        star.classList.add('text-platinum');
+                    }
+                });
+            }
+
+            function highlightStars(rating) {
+                stars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.classList.add('text-gold-dignity');
+                        star.classList.remove('text-platinum');
+                    } else {
+                        star.classList.remove('text-gold-dignity');
+                        star.classList.add('text-platinum');
+                    }
+                });
+            }
+
+            function resetStars() {
+                stars.forEach(star => {
+                    star.classList.remove('text-gold-dignity');
+                    star.classList.add('text-platinum');
+                });
+            }
+        });
+    </script>
+
     <!-- Trusted Institutions Slider (Marquee) -->
     <section class="py-12 bg-soft-grey border-y border-platinum relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-6">
+        <div class="max-w-5xl mx-auto px-6">
             <div class="text-center mb-8">
                 <span class="text-[9px] font-black text-dark-grey/40 uppercase tracking-[0.4em]">Struktur Organisasi Terkait</span>
             </div>
@@ -476,6 +745,47 @@
                 dateElement.innerText = new Date().toLocaleDateString('id-ID', options);
             }
         });
+    </script>
+
+
+    <script>
+        function newsCarousel() {
+            return {
+                currentSlide: 0,
+                totalSlides: {{ $berita->count() }},
+                autoSlideInterval: null,
+                
+                init() {
+                    this.startAutoSlide();
+                },
+                
+                startAutoSlide() {
+                    this.autoSlideInterval = setInterval(() => {
+                        this.nextSlide();
+                    }, 5000);
+                },
+                
+                pauseSlide() {
+                    clearInterval(this.autoSlideInterval);
+                },
+                
+                resumeSlide() {
+                    this.startAutoSlide();
+                },
+                
+                nextSlide() {
+                    this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
+                },
+                
+                prevSlide() {
+                    this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
+                },
+                
+                goToSlide(index) {
+                    this.currentSlide = index;
+                }
+            }
+        }
     </script>
 
     <style>

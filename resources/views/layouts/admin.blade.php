@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title') | Admin Lapas Lamongan</title>
+    <link rel="icon" type="image/png" href="{{ asset('assets/logo_imigrasi.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('assets/logo_imigrasi.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('assets/logo_imigrasi.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -135,6 +138,7 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
 </head>
 <body x-data="{ 
     sidebarOpen: false, 
@@ -247,6 +251,13 @@ class="antialiased">
                     <i data-lucide="info" class="w-4 h-4 flex-shrink-0"></i>
                     <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Running Text</span>
                 </a>
+                <a href="{{ route('admin.produk.index') }}" 
+                    :class="sidebarCollapsed ? 'justify-center px-0' : 'px-3'"
+                    class="flex items-center gap-3 py-2.5 rounded {{ Request::is('admin/produk*') ? 'bg-gold-dignity text-midnight-blue' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} font-bold text-[13px] transition-all"
+                    title="Produk Unggulan">
+                    <i data-lucide="package" class="w-4 h-4 flex-shrink-0"></i>
+                    <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Produk Unggulan</span>
+                </a>
                 @endcan
 
                 @canAny(['super', 'layanan'])
@@ -307,6 +318,22 @@ class="antialiased">
                 @endcan
 
                 <div x-show="!sidebarCollapsed" class="pt-4 px-3 py-2 text-[10px] font-bold text-white/30 uppercase tracking-widest">Pengaturan</div>
+                @can('super')
+                <a href="{{ route('admin.manage-admin.index') }}" 
+                    :class="sidebarCollapsed ? 'justify-center px-0' : 'px-3'"
+                    class="flex items-center gap-3 py-2.5 rounded {{ Request::is('admin/manage-admin*') ? 'bg-gold-dignity text-midnight-blue' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} font-bold text-[13px] transition-all"
+                    title="Kelola Admin">
+                    <i data-lucide="user-cog" class="w-4 h-4 flex-shrink-0"></i>
+                    <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Kelola Admin</span>
+                </a>
+                <a href="{{ route('admin.manage-users.index') }}" 
+                    :class="sidebarCollapsed ? 'justify-center px-0' : 'px-3'"
+                    class="flex items-center gap-3 py-2.5 rounded {{ Request::is('admin/manage-users*') ? 'bg-gold-dignity text-midnight-blue' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} font-bold text-[13px] transition-all"
+                    title="Kelola User Login">
+                    <i data-lucide="user-check" class="w-4 h-4 flex-shrink-0"></i>
+                    <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Kelola User Login</span>
+                </a>
+                @endcan
                 <a href="{{ route('admin.profil.index') }}" 
                     :class="sidebarCollapsed ? 'justify-center px-0' : 'px-3'"
                     class="flex items-center gap-3 py-2.5 rounded {{ Request::is('admin/profil*') ? 'bg-gold-dignity text-midnight-blue' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} font-bold text-[13px] transition-all"

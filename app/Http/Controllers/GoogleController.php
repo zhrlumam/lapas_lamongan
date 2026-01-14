@@ -55,7 +55,10 @@ class GoogleController extends Controller
             return redirect()->route('integrasi.dashboard'); 
 
         } catch (\Exception $e) {
-            return redirect()->route('integrasi.login')->with('error', 'Gagal login dengan Google: ' . $e->getMessage());
+            // SECURITY FIX: Generic error message untuk production
+            \Illuminate\Support\Facades\Log::error('Google Login Error: ' . $e->getMessage());
+            return redirect()->route('integrasi.login')
+                ->with('error', 'Gagal login dengan Google. Silakan coba lagi atau hubungi administrator.');
         }
     }
 }

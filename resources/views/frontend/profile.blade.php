@@ -108,9 +108,9 @@
                     </div>
                     <span class="text-gold-dignity font-bold uppercase text-[10px] tracking-[0.2em] block mb-4">Filosofi</span>
                     <h3 class="text-xl font-bold text-midnight-blue uppercase mb-6">Visi</h3>
-                    <p class="text-[15px] text-midnight-blue font-bold leading-relaxed italic">
-                        "{{ $profil->visi }}"
-                    </p>
+                    <div class="text-[15px] text-midnight-blue font-bold leading-relaxed italic">
+                        {!! $profil->visi !!}
+                    </div>
                 </div>
 
                 <!-- Misi -->
@@ -120,8 +120,8 @@
                     </div>
                     <span class="text-gold-dignity font-bold uppercase text-[10px] tracking-[0.2em] block mb-4">Mandat</span>
                     <h3 class="text-xl font-bold text-midnight-blue uppercase mb-6">Misi</h3>
-                    <div class="text-[13px] text-dark-grey leading-relaxed space-y-3 font-normal">
-                        {!! nl2br(e($profil->misi)) !!}
+                    <div class="text-[13px] text-dark-grey leading-relaxed space-y-3 font-normal prose prose-sm max-w-none prose-ul:list-disc prose-ol:list-decimal prose-li:ml-4">
+                        {!! $profil->misi !!}
                     </div>
                 </div>
             </div>

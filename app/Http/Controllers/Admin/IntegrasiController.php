@@ -65,9 +65,15 @@ class IntegrasiController extends Controller
 
     public function bulkStatus(Request $request)
     {
+        // SECURITY FIX: Authorization check untuk bulk operations
+        if (!auth()->user()->isSuper() && !auth()->user()->isLayanan()) {
+            abort(403, 'Anda tidak memiliki akses untuk operasi ini.');
+        }
+
         $request->validate([
             'ids' => 'required|array',
-            'status' => 'required|in:approved,rejected'
+            'ids.*' => 'exists:integrasi,id', // Validasi setiap ID ada di database
+            'status' => 'required|in:approved,rejected,pending'
         ]);
 
         Integrasi::whereIn('id', $request->ids)->update([
@@ -85,8 +91,14 @@ class IntegrasiController extends Controller
 
     public function bulkDelete(Request $request)
     {
+        // SECURITY FIX: Authorization check untuk bulk delete
+        if (!auth()->user()->isSuper() && !auth()->user()->isLayanan()) {
+            abort(403, 'Anda tidak memiliki akses untuk operasi ini.');
+        }
+
         $request->validate([
             'ids' => 'required|array',
+            'ids.*' => 'exists:integrasi,id', // Validasi setiap ID ada di database
         ]);
 
         $count = Integrasi::whereIn('id', $request->ids)->delete();

@@ -5,13 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Kunjungan;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 
 class KunjunganController extends Controller
 {
     public function index(Request $request)
     {
-        $date = $request->input('date', date('Y-m-d'));
+        $date = $request->input('date'); 
         $search = $request->input('search');
         $status = $request->input('status');
         
@@ -27,7 +26,9 @@ class KunjunganController extends Controller
                         ->orWhere('nik_pengunjung', 'LIKE', "%{$search}%");
                   });
             });
-        } elseif ($date) {
+        }
+        
+        if ($date) {
             $query->whereDate('tanggal_kunjungan', $date);
         }
 
@@ -35,19 +36,33 @@ class KunjunganController extends Controller
             $query->where('status', $status);
         }
         
-        $data = $query->orderBy('nomor_antrian', 'asc')
+        $data = $query->orderBy('tanggal_kunjungan', 'desc')
                       ->orderBy('id', 'desc')
-                      ->paginate(20);
+                      ->paginate(50); // Increased for "all data" feel
 
-        // Stats - disesuaikan dengan status MASUK / KELUAR
+        // Grouping data by date for UI
+        $groupedData = $data->groupBy(function($item) {
+            return $item->tanggal_kunjungan;
+        });
+
+        // Optimized Stats Calculation - Single Query
+        $statsRaw = Kunjungan::selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'masuk' THEN 1 ELSE 0 END) as masuk,
+            SUM(CASE WHEN status = 'keluar' THEN 1 ELSE 0 END) as keluar,
+            SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as pending
+        ")
+        ->when($date, fn($q) => $q->whereDate('tanggal_kunjungan', $date))
+        ->first();
+        
         $stats = [
-            'total' => Kunjungan::whereDate('tanggal_kunjungan', $date)->count(),
-            'masuk' => Kunjungan::whereDate('tanggal_kunjungan', $date)->where('status', 'masuk')->count(),
-            'keluar' => Kunjungan::whereDate('tanggal_kunjungan', $date)->where('status', 'keluar')->count(),
-            'pending' => Kunjungan::whereDate('tanggal_kunjungan', $date)->where('status', 'approved')->count(),
+            'total' => $statsRaw->total ?? 0,
+            'masuk' => $statsRaw->masuk ?? 0,
+            'keluar' => $statsRaw->keluar ?? 0,
+            'pending' => $statsRaw->pending ?? 0,
         ];
                          
-        return view('admin.kunjungan.index', compact('data', 'date', 'search', 'status', 'stats'));
+        return view('admin.kunjungan.index', compact('data', 'groupedData', 'date', 'search', 'status', 'stats'));
     }
 
     public function updateStatus($id, $status)
@@ -78,9 +93,12 @@ class KunjunganController extends Controller
         $ids = $request->ids;
         if (!$ids) return back()->with('error', 'Pilih data yang akan dihapus.');
         
-        Kunjungan::whereIn('id', $ids)->each(function($item) {
-            $item->pengunjung()->delete();
-            $item->delete();
+        // Optimized Bulk Delete with Chunking (Prevents Memory Overflow)
+        Kunjungan::whereIn('id', $ids)->chunk(100, function($items) {
+            foreach ($items as $item) {
+                $item->pengunjung()->delete();
+                $item->delete();
+            }
         });
 
         return back()->with('success', count($ids) . ' Data kunjungan berhasil dihapus.');

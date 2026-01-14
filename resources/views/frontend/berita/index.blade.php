@@ -32,6 +32,7 @@
 
         <div class="max-w-5xl mx-auto">
             
+            @if($berita->count() > 0)
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
                 @foreach($berita as $item)
                 <article class="group">
@@ -48,9 +49,9 @@
                             {{ $item->judul }}
                         </h3>
                         <p class="text-[12px] text-dark-grey/70 leading-relaxed line-clamp-2">
-                            {{ \Illuminate\Support\Str::limit(strip_tags($item->isi), 100) }}
+                            {!! \Illuminate\Support\Str::limit(strip_tags($item->isi), 100) !!}
                         </p>
-                        <a href="{{ route('berita.show', $item->id_berita) }}" class="text-[10px] font-black text-midnight-blue uppercase tracking-widest flex items-center gap-2 group-hover:translate-x-1 transition-transform pt-4">
+                        <a href="{{ route('berita.show', $item) }}" class="text-[10px] font-black text-midnight-blue uppercase tracking-widest flex items-center gap-2 group-hover:translate-x-1 transition-transform pt-4">
                             Lihat Laporan <i data-lucide="arrow-right" class="w-3 h-3"></i>
                         </a>
                     </div>
@@ -61,6 +62,20 @@
             <div class="mt-20 pt-12 border-t border-platinum flex justify-center">
                 {{ $berita->links() }}
             </div>
+            @else
+            <div class="text-center py-32">
+                <div class="w-32 h-32 bg-white rounded-full flex items-center justify-center mx-auto mb-8 border border-platinum">
+                    <i data-lucide="newspaper" class="w-16 h-16 text-dark-grey/20"></i>
+                </div>
+                <h3 class="text-2xl font-black text-midnight-blue uppercase tracking-tight mb-4">Belum Ada Berita</h3>
+                <p class="text-base text-dark-grey/60 leading-relaxed max-w-md mx-auto">
+                    Saat ini belum ada berita atau informasi yang dipublikasikan. Silakan kembali lagi nanti.
+                </p>
+                <a href="{{ route('home') }}" class="inline-flex items-center gap-3 mt-8 px-8 py-4 bg-midnight-blue text-white font-black uppercase text-[11px] tracking-widest rounded-sm hover:bg-gold-dignity hover:text-midnight-blue transition-all">
+                    <i data-lucide="home" class="w-4 h-4"></i> Kembali ke Beranda
+                </a>
+            </div>
+            @endif
 
         </div>
     </div>

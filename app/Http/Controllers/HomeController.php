@@ -9,32 +9,42 @@ use App\Models\SurveyKepuasan;
 use App\Models\ProfilLapas;
 use App\Models\Informasi;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        $berita = Berita::latest('tanggal')->take(3)->get();
+        $berita = Berita::published()->latest('tanggal')->take(4)->get();
         $produk = Produk::latest('id_produk')->take(4)->get();
         $hunian = WargaBinaan::latest('tanggal_update')->first() ?: (object)[
             'tahanan' => 0, 'narapidana' => 0, 'total_penghuni' => 0, 
             'sidang' => 0, 'berobat_luar' => 0, 'tanggal_update' => date('Y-m-d')
         ];
-        $profil = ProfilLapas::first();
+        $profil = ProfilLapas::getOrDefault();
         $survey = SurveyKepuasan::where('is_active', 1)->first();
         $informasi = Informasi::latest('id_info')->take(5)->get();
         
         $visitor_count = \App\Models\VisitorLog::count();
         $unique_visitors = \App\Models\VisitorLog::distinct('ip_address')->count();
         $galeri = \App\Models\Galeri::latest('tanggal')->take(6)->get();
+        
+        // Hitung antrean kunjungan hari ini
+        $antrean_hari_ini = \App\Models\Kunjungan::whereDate('tanggal_kunjungan', date('Y-m-d'))->count();
 
-        return view('frontend.home', compact('berita', 'produk', 'hunian', 'profil', 'survey', 'visitor_count', 'unique_visitors', 'informasi', 'galeri'));
+        // SEO Data
+        $seoPage = 'home';
+        $structuredData = \App\Helpers\SeoHelper::generateStructuredData('organization');
+
+        return view('frontend.home', compact(
+            'berita', 'produk', 'hunian', 'profil', 'survey', 
+            'visitor_count', 'unique_visitors', 'informasi', 'galeri',
+            'seoPage', 'structuredData', 'antrean_hari_ini'
+        ));
     }
 
     public function profile()
     {
-        $profil = ProfilLapas::first();
+        $profil = ProfilLapas::getOrDefault();
         return view('frontend.profile', compact('profil'));
     }
 
