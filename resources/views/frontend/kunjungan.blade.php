@@ -6,7 +6,7 @@
     <!-- Header Section -->
     <!-- Header Section -->
     <section class="relative flex flex-col items-center justify-center text-center px-4 pt-40 pb-20 bg-white border-b border-platinum">
-        <div class="relative z-10 max-w-4xl mx-auto w-full">
+        <div class="relative z-10 max-w-5xl mx-auto w-full">
             <span class="text-gold-dignity font-bold uppercase text-[10px] tracking-[0.3em] mb-4 block">Fasilitas Publik</span>
             <h1 class="text-3xl md:text-4xl font-extrabold text-midnight-blue mb-4 uppercase tracking-tight leading-tight">Pendaftaran Kunjungan</h1>
             <p class="text-sm md:text-base text-dark-grey max-w-2xl mx-auto leading-relaxed font-normal">
@@ -91,7 +91,7 @@
 
                     <!-- Simplified Registration Form -->
             <div id="daftar" class="mt-8 md:mt-12 pt-8 md:pt-12 border-t border-platinum px-4 md:px-0">
-                <div class="max-w-4xl mx-auto">
+                <div class="max-w-5xl mx-auto">
                     
                     <div class="text-center mb-8 md:mb-10">
                         <h2 class="text-2xl md:text-3xl font-black text-midnight-blue uppercase tracking-tight">Pendaftaran Kunjungan</h2>

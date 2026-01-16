@@ -6,7 +6,7 @@
     <!-- Header Section -->
     <!-- Header Section -->
     <section class="relative flex flex-col items-center justify-center text-center px-4 pt-40 pb-20 bg-white border-b border-platinum">
-        <div class="relative z-10 max-w-4xl mx-auto w-full">
+        <div class="relative z-10 max-w-5xl mx-auto w-full">
             <span class="text-gold-dignity font-bold uppercase text-[10px] tracking-[0.3em] mb-4 block">Karya & Kemandirian</span>
             <h1 class="text-3xl md:text-4xl font-extrabold text-midnight-blue mb-4 uppercase tracking-tight leading-tight">Produk Unggulan WBP</h1>
             <p class="text-sm md:text-base text-dark-grey max-w-2xl mx-auto leading-relaxed font-normal">
@@ -17,7 +17,7 @@
 
     <!-- Content Sections -->
     <div class="bg-soft-grey py-16 px-6 min-h-screen">
-        <div class="max-w-6xl mx-auto">
+        <div class="max-w-5xl mx-auto">
             
             <!-- Category Filter Scripts -->
             <div class="flex flex-wrap justify-center gap-4 mb-16" id="categoryFilters">
@@ -35,7 +35,7 @@
             </div>
 
             <!-- Product Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" id="productGrid">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8" id="productGrid">
                 @forelse($produk as $p)
                 <div class="product-item group bg-white p-4 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer border border-transparent hover:border-gold-dignity/30 flex flex-col h-full" data-category="{{ $p->kategori }}" onclick='openProductModal(@json($p))'>
                     <!-- Image Wrapper -->
@@ -123,49 +123,51 @@
     </div>
 
     <!-- MODERN PRODUCT MODAL -->
-    <div id="productModal" class="fixed inset-0 z-[999] hidden" role="dialog" aria-modal="true">
+    <div id="productModal" class="fixed inset-0 z-[1000] hidden" role="dialog" aria-modal="true">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-midnight-blue/95 backdrop-blur-sm transition-opacity duration-300 opacity-0" id="modalBackdrop" onclick="closeProductModal()"></div>
+        <div class="absolute inset-0 bg-midnight-blue/40 backdrop-blur-md transition-opacity duration-500 opacity-0" id="modalBackdrop" onclick="closeProductModal()"></div>
         
         <!-- Modal Content -->
         <div class="relative z-10 flex items-center justify-center min-h-screen p-4 pointer-events-none">
-            <div class="bg-white w-full max-w-4xl rounded-[2rem] overflow-hidden shadow-2xl transform transition-all duration-500 translate-y-20 opacity-0 pointer-events-auto" id="modalContent">
-                <button onclick="closeProductModal()" class="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white/10 hover:bg-black/5 flex items-center justify-center text-midnight-blue transition-colors">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+            <div class="bg-white w-full max-w-2xl rounded-[1.5rem] overflow-hidden shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] transform transition-all duration-500 scale-95 translate-y-8 opacity-0 pointer-events-auto" id="modalContent">
+                <button onclick="closeProductModal()" class="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-white/20 hover:bg-black/5 backdrop-blur-md flex items-center justify-center text-midnight-blue transition-all hover:rotate-90">
+                    <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 min-h-[500px]">
+                <div class="grid grid-cols-1 md:grid-cols-2">
                     <!-- Image Section -->
-                    <div class="bg-platinum relative h-64 md:h-full overflow-hidden group">
-                        <img id="modalImage" src="" alt="Product Image" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                    <div class="bg-platinum relative h-56 md:h-auto overflow-hidden group">
+                        <img id="modalImage" src="" alt="Product Image" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105">
                         <!-- Gradient Overlay -->
-                        <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/50 to-transparent"></div>
-                        <div class="absolute bottom-6 left-6 text-white">
-                             <div class="inline-block px-3 py-1 rounded-md bg-gold-dignity text-midnight-blue text-[9px] font-black uppercase tracking-widest mb-2" id="modalCategory">
+                        <div class="absolute inset-0 bg-gradient-to-t from-midnight-blue/40 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white">
+                             <div class="inline-block px-2.5 py-1 rounded-full bg-gold-dignity text-midnight-blue text-[8px] font-black uppercase tracking-widest" id="modalCategory">
                                 KATEGORI
                             </div>
                         </div>
                     </div>
 
                     <!-- Details Section -->
-                    <div class="p-8 md:p-12 flex flex-col bg-white">
-                        <div class="mb-auto">
-                            <h2 id="modalTitle" class="text-2xl md:text-3xl font-bold text-midnight-blue mb-6 leading-tight">Nama Produk</h2>
-                            <div class="w-16 h-1.5 bg-gold-dignity mb-8 rounded-full"></div>
+                    <div class="p-6 md:p-8 flex flex-col bg-white">
+                        <div class="mb-6">
+                            <h2 id="modalTitle" class="text-xl md:text-2xl font-black text-midnight-blue mb-3 leading-tight">Nama Produk</h2>
+                            <div class="w-12 h-1 bg-gold-dignity mb-5 rounded-full"></div>
                             
-                            <h4 class="text-xs font-black text-dark-grey/40 uppercase tracking-widest mb-3">Deskripsi Produk</h4>
-                            <p id="modalDescription" class="text-sm text-dark-grey leading-relaxed font-normal overflow-y-auto max-h-[200px] pr-4 scrollbar-thin scrollbar-thumb-platinum scrollbar-track-transparent">
-                                Deskripsi...
-                            </p>
+                            <h4 class="text-[9px] font-black text-dark-grey/40 uppercase tracking-[0.2em] mb-2">Deskripsi</h4>
+                            <div class="relative">
+                                <p id="modalDescription" class="text-[13px] text-dark-grey/80 leading-relaxed font-normal overflow-y-auto max-h-[150px] pr-2 scrollbar-thin scrollbar-thumb-platinum scrollbar-track-transparent">
+                                    Deskripsi...
+                                </p>
+                            </div>
                         </div>
 
-                        <div class="mt-8 pt-8 border-t border-platinum">
-                            <a id="modalWhatsapp" href="#" target="_blank" class="flex items-center justify-center gap-3 w-full bg-midnight-blue hover:bg-gold-dignity text-white hover:text-midnight-blue py-4 rounded-xl shadow-lg transition-all transform hover:-translate-y-1 group">
-                                <i data-lucide="phone" class="w-5 h-5 fill-current"></i>
-                                <span class="text-xs font-black uppercase tracking-[0.2em]">Hubungi via WhatsApp</span>
+                        <div class="mt-auto pt-6 border-t border-platinum/50">
+                            <a id="modalWhatsapp" href="#" target="_blank" class="flex items-center justify-center gap-2.5 w-full bg-midnight-blue hover:bg-gold-dignity text-white hover:text-midnight-blue py-3.5 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 active:scale-95 group">
+                                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                                <span class="text-[10px] font-black uppercase tracking-[0.15em]">Hubungi via WhatsApp</span>
                             </a>
-                            <p class="text-center text-[10px] text-dark-grey/40 mt-3 font-medium">
-                                Tanya ketersediaan & detail pesanan langsung ke Admin
+                            <p class="text-center text-[9px] text-dark-grey/40 mt-3 font-medium uppercase tracking-tighter">
+                                Konsultasi ketersediaan langsung ke Admin
                             </p>
                         </div>
                     </div>
@@ -215,7 +217,7 @@
             document.getElementById('modalDescription').innerText = product.deskripsi;
             
             // Image
-            const imgPath = product.gambar.startsWith('http') ? product.gambar : "{{ asset('uploads') }}/" + product.gambar;
+            const imgPath = product.gambar_url;
             document.getElementById('modalImage').src = imgPath;
 
             // Whatsapp Link - Without Price
@@ -233,7 +235,7 @@
             // Animation
             setTimeout(() => {
                 backdrop.classList.remove('opacity-0');
-                content.classList.remove('translate-y-20', 'opacity-0');
+                content.classList.remove('scale-95', 'translate-y-8', 'opacity-0');
             }, 10);
             
             document.body.style.overflow = 'hidden'; 
@@ -245,12 +247,12 @@
             const content = document.getElementById('modalContent');
 
             backdrop.classList.add('opacity-0');
-            content.classList.add('translate-y-20', 'opacity-0');
+            content.classList.add('scale-95', 'translate-y-8', 'opacity-0');
 
             setTimeout(() => {
                 modal.classList.add('hidden');
                 document.body.style.overflow = 'auto'; 
-            }, 300);
+            }, 500);
         }
 
         document.addEventListener('keydown', function(event) {

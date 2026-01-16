@@ -20,6 +20,8 @@ class Produk extends Model
         'gambar',
     ];
 
+    protected $appends = ['gambar_url'];
+
     public function getGambarUrlAttribute()
     {
         // 1. Cek di storage/produk (Struktur Baru)

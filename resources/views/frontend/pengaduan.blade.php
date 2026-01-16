@@ -6,7 +6,7 @@
     <!-- Header Section -->
     <!-- Header Section -->
     <section class="relative flex flex-col items-center justify-center text-center px-4 pt-40 pb-20 bg-white border-b border-platinum">
-        <div class="relative z-10 max-w-4xl mx-auto w-full">
+        <div class="relative z-10 max-w-5xl mx-auto w-full">
             <span class="text-gold-dignity font-bold uppercase text-[10px] tracking-[0.3em] mb-4 block">Integritas Pelayanan</span>
             <h1 class="text-3xl md:text-4xl font-extrabold text-midnight-blue mb-4 uppercase tracking-tight leading-tight">Portal Pengaduan Masyarakat</h1>
             <p class="text-sm md:text-base text-dark-grey max-w-2xl mx-auto leading-relaxed font-normal">
@@ -17,7 +17,7 @@
 
     <!-- Panduan Prosedur -->
     <section class="bg-white py-16 px-6 border-b border-platinum">
-        <div class="max-w-6xl mx-auto">
+        <div class="max-w-5xl mx-auto">
             <div class="text-center mb-12">
                 <span class="text-gold-dignity font-bold uppercase text-[10px] tracking-[0.3em] mb-3 block">Prosedur Pelaporan</span>
                 <h2 class="text-2xl md:text-3xl font-extrabold text-midnight-blue uppercase tracking-tight">Tata Cara Pengaduan</h2>
@@ -58,7 +58,7 @@
 
     <!-- Content Sections -->
     <div class="bg-soft-grey py-16 px-6">
-        <div class="max-w-6xl mx-auto" id="form-pengaduan">
+        <div class="max-w-5xl mx-auto" id="form-pengaduan">
             
             @if(session('success'))
             <div class="mb-10 bg-green-50 border border-green-200 p-6 rounded-xl flex gap-4 items-start shadow-sm animate-fade-in-up">
