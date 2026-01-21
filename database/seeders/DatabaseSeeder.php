@@ -175,7 +175,7 @@ class DatabaseSeeder extends Seeder
             [
                 'nama_instansi' => 'Lembaga Pemasyarakatan Kelas IIB Lamongan',
                 'nama_kepala' => 'Drs. Ahmad Yusuf, M.Si',
-                'alamat' => 'Jl. Veteran No. 01, Lamongan, Jawa Timur',
+                'alamat' => 'JL. Sumargo, No.19, Kec. Lamongan',
                 'email' => 'lapas_lamongan@kemenkumham.go.id',
                 'telepon' => '(0322) 321xxx',
                 'updated_at' => now()

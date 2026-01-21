@@ -38,8 +38,8 @@
         activeSlide: 0, 
         slides: [
             { image: '{{ asset('assets/hero.jpg') }}', title: 'Komitmen Integritas', sub: 'Kami melayani dengan hati dan transparansi penuh untuk pemasyarakatan yang lebih baik.' },
-            { image: '{{ asset('assets/hero_slide_2.png') }}', title: 'Layanan Terintegrasi', sub: 'Akses mudah bagi keluarga warga binaan melalui sistem digital yang terpercaya.' },
-            { image: '{{ asset('assets/hero_slide_3.png') }}', title: 'Pembinaan Mandiri', sub: 'Membangun karakter dan kemandirian warga binaan agar siap kembali ke masyarakat.' }
+            { image: '{{ asset('assets/hero_slide_2.jpg') }}', title: 'Layanan Terintegrasi', sub: 'Akses mudah bagi keluarga warga binaan melalui sistem digital yang terpercaya.' },
+            { image: '{{ asset('assets/hero_slide_3.jpg') }}', title: 'Pembinaan Mandiri', sub: 'Membangun karakter dan kemandirian warga binaan agar siap kembali ke masyarakat.' }
         ],
         next() { this.activeSlide = (this.activeSlide + 1) % this.slides.length },
         prev() { this.activeSlide = (this.activeSlide - 1 + this.slides.length) % this.slides.length },
@@ -86,7 +86,7 @@
 
     <!-- Main Features Grid (Ukuran disesuaikan dengan Score Indeks max-w-5xl) -->
     <section class="max-w-5xl mx-auto px-6 -mt-16 relative z-20 mb-10">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-0 shadow-2xl bg-white rounded-sm overflow-hidden border border-platinum divide-x divide-platinum">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-0 shadow-2xl bg-white rounded-sm overflow-hidden border border-platinum divide-x divide-platinum">
             @php
                 $features = [
                     ['icon' => 'calendar-days', 'label' => 'Kunjungan Online', 'link' => route('kunjungan'), 'sub' => 'Daftar Antrean'],
@@ -213,28 +213,75 @@
                     <div class="p-16">
                         <span class="text-gold-dignity font-black uppercase text-[10px] tracking-widest">Score Indeks</span>
                         <h2 class="text-3xl font-black text-midnight-blue mt-4 mb-6 uppercase tracking-tighter leading-tight">Kepuasan Masyarakat & Integritas</h2>
-                        <p class="text-[13px] text-dark-grey/60 leading-loose mb-10">Lapas Kelas IIB Lamongan berkomitmen mempertahankan predikat WBK/WBBM melalui pelayanan bersih dan bebas melayani.</p>
+                        <p class="text-[13px] text-dark-grey/60 leading-loose mb-10">Lapas Kelas IIB Lamongan berkomitmen mempertahankan predikat WBK/WBBM melalui pelayanan bersih dan bebas korupsi.</p>
                         
                         <div class="space-y-6">
                             <div class="space-y-2">
                                 <div class="flex justify-between text-[11px] font-black text-midnight-blue uppercase">
-                                    <span>Indeks Persepsi Korupsi</span>
+                                    <span>Survei Persepsi Anti Korupsi (SPAK)</span>
                                     <span>{{ $survey->skor_ipk }} / 4.0</span>
                                 </div>
                                 <div class="w-full h-1.5 bg-platinum rounded-full overflow-hidden">
                                     <div class="h-full bg-gold-dignity transition-all duration-1000" style="width: {{ ($survey->skor_ipk / 4) * 100 }}%"></div>
                                 </div>
+                                <!-- Bintang Rating SPAK -->
+                                <div class="flex items-center gap-2 mt-2">
+                                    @php
+                                        $spakStars = round($survey->skor_ipk);
+                                    @endphp
+                                    @for($i = 1; $i <= 4; $i++)
+                                        <svg class="w-5 h-5 {{ $i <= $spakStars ? 'text-gold-dignity fill-current' : 'text-platinum' }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                        </svg>
+                                    @endfor
+                                    <span class="text-[10px] font-bold text-dark-grey/60 ml-1">{{ number_format(($survey->skor_ipk / 4) * 100, 2) }}%</span>
+                                </div>
                             </div>
                             <div class="space-y-2">
                                 <div class="flex justify-between text-[11px] font-black text-midnight-blue uppercase">
-                                    <span>Indeks Kepuasan Masyarakat</span>
+                                    <span>Survei Kepuasan Masyarakat (SKM)</span>
                                     <span>{{ $survey->skor_ikm }} / 4.0</span>
                                 </div>
                                 <div class="w-full h-1.5 bg-platinum rounded-full overflow-hidden">
                                     <div class="h-full bg-midnight-blue transition-all duration-1000" style="width: {{ ($survey->skor_ikm / 4) * 100 }}%"></div>
                                 </div>
+                                <!-- Bintang Rating SKM -->
+                                <div class="flex items-center gap-2 mt-2">
+                                    @php
+                                        $skmStars = round($survey->skor_ikm);
+                                    @endphp
+                                    @for($i = 1; $i <= 4; $i++)
+                                        <svg class="w-5 h-5 {{ $i <= $skmStars ? 'text-midnight-blue fill-current' : 'text-platinum' }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                        </svg>
+                                    @endfor
+                                    <span class="text-[10px] font-bold text-dark-grey/60 ml-1">{{ number_format(($survey->skor_ikm / 4) * 100, 2) }}%</span>
+                                </div>
                             </div>
                         </div>
+                        
+                        <!-- Jumlah Responden -->
+                        @if($survey->jumlah_responden > 0)
+                        <div class="mt-8 pt-6 border-t border-platinum">
+                            <div class="flex items-center justify-center gap-3">
+                                <div class="flex -space-x-2">
+                                    <div class="w-8 h-8 rounded-full bg-gold-dignity border-2 border-white flex items-center justify-center">
+                                        <i data-lucide="user" class="w-4 h-4 text-midnight-blue"></i>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full bg-midnight-blue border-2 border-white flex items-center justify-center">
+                                        <i data-lucide="user" class="w-4 h-4 text-gold-dignity"></i>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-full bg-gold-dignity border-2 border-white flex items-center justify-center">
+                                        <i data-lucide="user" class="w-4 h-4 text-midnight-blue"></i>
+                                    </div>
+                                </div>
+                                <div class="text-left">
+                                    <p class="text-2xl font-black text-midnight-blue">{{ number_format($survey->jumlah_responden) }}</p>
+                                    <p class="text-[9px] font-bold text-dark-grey/60 uppercase tracking-widest">Responden</p>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
                     </div>
                     <div class="p-16 flex flex-col items-center justify-center text-center bg-white">
                         <div class="w-32 h-32 rounded-full border-8 border-gold-dignity/10 flex items-center justify-center mb-6">
@@ -340,17 +387,22 @@
                                 </div>
                                 <span class="text-[10px] font-bold text-platinum/30 uppercase tracking-[0.2em]">Senin-Kamis</span>
                             </div>
-                            <div class="flex justify-between items-center pb-4 border-b border-white/10">
-                                <div class="space-y-1">
-                                    <span class="text-[10px] font-black text-gold-dignity uppercase tracking-tighter block">Sesi Siang</span>
-                                    <span class="text-sm font-black text-white uppercase font-mono">13:30 - 15:00</span>
-                                </div>
-                                <span class="text-[10px] font-bold text-platinum/30 uppercase tracking-[0.2em]">Senin-Kamis</span>
-                            </div>
                             <div class="flex justify-between items-center bg-red-600/10 p-3 rounded-sm border border-red-600/30">
                                 <span class="text-[10px] font-bold text-red-400 uppercase tracking-widest">Jumat - Minggu</span>
                                 <span class="text-[10px] font-black text-white uppercase">Tutup</span>
                             </div>
+                        </div>
+
+                        <div class="mt-auto pt-8 border-t border-white/10">
+                            <a href="{{ route('layanan') }}#barang-bawaan" class="flex items-center justify-between group/link">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded bg-white/5 flex items-center justify-center text-gold-dignity group-hover/link:bg-gold-dignity group-hover/link:text-midnight-blue transition-all">
+                                        <i data-lucide="package-search" class="w-4 h-4"></i>
+                                    </div>
+                                    <span class="text-[10px] font-black text-white uppercase tracking-widest">Panduan Barang Bawaan</span>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-white/20 group-hover/link:text-white transition-all group-hover/link:translate-x-1"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -493,6 +545,73 @@
     </section>
     @endif
 
+    <!-- Section: Promotion for Layanan Integrasi Online (Refined) -->
+    <section class="py-16 px-6 bg-soft-grey reveal-on-scroll border-y border-platinum">
+        <div class="max-w-5xl mx-auto">
+            <div class="bg-midnight-blue rounded-2xl overflow-hidden shadow-lg relative">
+                <!-- Decorative Elements -->
+                <div class="absolute top-0 right-0 w-80 h-80 bg-gold-dignity/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 relative z-10">
+                    <!-- Text Content -->
+                    <div class="lg:col-span-7 p-8 md:p-12 flex flex-col justify-center">
+                        <span class="text-gold-dignity font-bold uppercase text-[10px] tracking-[0.3em] mb-5 block flex items-center gap-2">
+                            <span class="w-8 h-[1px] bg-gold-dignity"></span> Digitalisasi Layanan
+                        </span>
+                        <h2 class="text-2xl md:text-4xl font-extrabold text-white uppercase tracking-tight leading-tight mb-5">
+                            Layanan Integrasi <br class="hidden md:block"> Lebih Mudah & Online
+                        </h2>
+                        <p class="text-platinum/60 text-sm md:text-base leading-relaxed mb-8 max-w-xl font-medium">
+                            Keluarga WBP kini dapat mengajukan Pembebasan Bersyarat (PB), Cuti Bersyarat (CB), dan Cuti Menjelang Bebas (CMB) secara mandiri melalui platform digital yang aman dan transparan.
+                        </p>
+                        
+                        <div>
+                            <a href="{{ route('integrasi.login') }}" class="inline-flex items-center gap-2.5 bg-gold-dignity text-midnight-blue px-8 py-4 rounded-xl font-bold text-[11px] uppercase tracking-widest hover:bg-white transition-all duration-300 shadow-md group">
+                                Akses Layanan Integrasi 
+                                <i data-lucide="arrow-right" class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Visual Side -->
+                    <div class="lg:col-span-5 bg-white/5 border-l border-white/5 p-8 md:p-12 flex flex-col justify-center gap-6">
+                        <div class="space-y-5">
+                            <div class="flex items-center gap-4 group">
+                                <div class="w-12 h-12 bg-gold-dignity/10 rounded-xl flex items-center justify-center text-gold-dignity shrink-0 group-hover:bg-gold-dignity group-hover:text-midnight-blue transition-all">
+                                    <i data-lucide="shield-check" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-bold uppercase text-xs tracking-wide">Transparan</h4>
+                                    <p class="text-platinum/40 text-[10px] mt-0.5 font-medium">Monitoring status real-time.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-4 group">
+                                <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-platinum shrink-0 group-hover:bg-white group-hover:text-midnight-blue transition-all">
+                                    <i data-lucide="clock" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-bold uppercase text-xs tracking-wide">Efisien Waktu</h4>
+                                    <p class="text-platinum/40 text-[10px] mt-0.5 font-medium">Proses administrasi cepat.</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-4 group">
+                                <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center text-platinum shrink-0 group-hover:bg-white group-hover:text-midnight-blue transition-all">
+                                    <i data-lucide="smartphone" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-white font-bold uppercase text-xs tracking-wide">Multi-Platform</h4>
+                                    <p class="text-platinum/40 text-[10px] mt-0.5 font-medium">Akses via Gadget Anda.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Produk Pilihan Section -->
     @if($produk->count() > 0)
     <section class="py-24 px-6 bg-midnight-blue reveal-on-scroll">
@@ -580,8 +699,8 @@
             <div class="text-center mb-12">
                 <span class="text-gold-dignity font-black uppercase text-[11px] tracking-[0.4em] mb-4 block">Feedback</span>
                 <h2 class="text-4xl font-black text-midnight-blue uppercase tracking-tighter mb-4">Penilaian Layanan</h2>
-                <p class="text-sm text-dark-grey/60 leading-relaxed max-w-2xl mx-auto">
-                    Bantu kami meningkatkan kualitas pelayanan dengan memberikan penilaian Anda
+                <p class="text-sm text-dark-grey/70 leading-relaxed max-w-3xl mx-auto font-normal italic">
+                    "Aspirasi dan penilaian Anda merupakan kontribusi nyata yang memberikan motivasi bagi kami untuk terus bertransformasi dalam mewujudkan pelayanan publik yang lebih baik, transparan, dan berintegritas tinggi."
                 </p>
             </div>
 

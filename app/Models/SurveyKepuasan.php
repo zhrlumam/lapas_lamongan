@@ -17,6 +17,7 @@ class SurveyKepuasan extends Model
         'bulan',
         'skor_ipk',
         'skor_ikm',
+        'jumlah_responden',
         'keterangan',
         'is_active',
     ];

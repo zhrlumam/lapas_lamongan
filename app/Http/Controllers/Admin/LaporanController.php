@@ -26,7 +26,7 @@ class LaporanController extends Controller
             $data = WargaBinaan::latest('tanggal_update')->take(30)->get();
             $profil = \App\Models\ProfilLapas::first() ?? (object)[
                 'nama_instansi' => 'Lembaga Pemasyarakatan Kelas IIB Lamongan',
-                'alamat' => 'Jl. Sumargo No. 12, Tlogoanyar, Kec. Lamongan'
+                'alamat' => 'JL. Sumargo, No.19, Kec. Lamongan'
             ];
             
             $pdf = Pdf::loadView('pdf.laporan_wbp', compact('data', 'profil'))
@@ -57,7 +57,7 @@ class LaporanController extends Controller
                              
             $profil = \App\Models\ProfilLapas::first() ?? (object)[
                 'nama_instansi' => 'Lembaga Pemasyarakatan Kelas IIB Lamongan',
-                'alamat' => 'Jl. Sumargo No. 12, Tlogoanyar, Kec. Lamongan'
+                'alamat' => 'JL. Sumargo, No.19, Kec. Lamongan'
             ];
             
             $pdf = Pdf::loadView('pdf.laporan_kunjungan', compact('data', 'profil', 'bulan', 'tahun'))

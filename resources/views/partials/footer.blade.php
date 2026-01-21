@@ -6,6 +6,22 @@
         <p class="text-platinum/60 text-[13px] leading-loose max-w-md mb-8">
             Berdedikasi untuk memberikan pelayanan publik yang transparan dan pembinaan kemandirian yang berintegritas bagi warga binaan pemasyarakatan.
         </p>
+        
+        <!-- Social Media Icons -->
+        <div class="flex gap-4">
+            <a href="https://www.instagram.com/lapaslamongan_official/" target="_blank" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-gold-dignity hover:text-midnight-blue transition-all group" title="Follow us on Instagram">
+                <i data-lucide="instagram" class="w-4 h-4 text-platinum group-hover:text-midnight-blue"></i>
+            </a>
+            <a href="https://www.facebook.com/lapaslamonganofficial" target="_blank" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-gold-dignity hover:text-midnight-blue transition-all group" title="Follow us on Facebook">
+                <i data-lucide="facebook" class="w-4 h-4 text-platinum group-hover:text-midnight-blue"></i>
+            </a>
+            <a href="https://twitter.com/lapas_lamongan" target="_blank" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-gold-dignity hover:text-midnight-blue transition-all group" title="Follow us on Twitter">
+                <i data-lucide="twitter" class="w-4 h-4 text-platinum group-hover:text-midnight-blue"></i>
+            </a>
+            <a href="https://www.youtube.com/@lapaslamonganofficial" target="_blank" class="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-gold-dignity hover:text-midnight-blue transition-all group" title="Subscribe to our YouTube">
+                <i data-lucide="youtube" class="w-4 h-4 text-platinum group-hover:text-midnight-blue"></i>
+            </a>
+        </div>
       </div>
       <div>
         <h6 class="text-[10px] font-black uppercase tracking-[0.2em] mb-8 text-gold-dignity">Navigasi Utama</h6>
@@ -21,7 +37,7 @@
         <div class="text-platinum/50 text-[10px] space-y-4 font-bold uppercase tracking-widest leading-relaxed">
           <p>Telepon: 0811-3405-959</p>
           <p>Email: lapaslamongan@gmail.com</p>
-          <p>Jl. Veteran No.01, Lamongan, Jawa Timur</p>
+          <p>JL. Sumargo, No.19, Kec. Lamongan</p>
         </div>
       </div>
     </div>

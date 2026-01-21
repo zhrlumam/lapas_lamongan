@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Maklumat & Standar Pelayanan')
+@section('title', 'Standar Pelayanan & Panduan Barang')
 
 @section('content')
 <!-- Header Section (PPID Style) -->
@@ -13,11 +13,11 @@
         <nav class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-6 font-sans">
             <a href="/" class="hover:text-gold-dignity transition-colors">Beranda</a>
             <i data-lucide="chevron-right" class="w-3 h-3"></i>
-            <span class="text-gold-dignity">Layanan & Integrasi</span>
+            <span class="text-gold-dignity">Standar Pelayanan & Panduan</span>
         </nav>
 
         <h1 class="text-3xl lg:text-5xl font-black text-white uppercase tracking-tighter">
-            Layanan & Integrasi
+            Standar Pelayanan & Panduan
         </h1>
     </div>
 </section>
@@ -261,7 +261,7 @@
 
 
 <!-- Panduan Barang Bawaan Section -->
-<section class="py-24 px-6 bg-white border-t border-platinum overflow-hidden">
+<section id="barang-bawaan" class="py-24 px-6 bg-white border-t border-platinum overflow-hidden">
     <div class="max-w-5xl mx-auto reveal-on-scroll">
         <div class="mb-16 text-center">
             <span class="text-gold-dignity font-bold uppercase text-[10px] tracking-[0.2em] block mb-4">Keamanan & Tata Tertib</span>
@@ -282,20 +282,22 @@
                     <div class="space-y-6">
                         @php
                             $dilarang = [
-                                ['label' => 'Minuman', 'desc' => 'Segala jenis minuman (Fabrikasi/Bermerk)'],
-                                ['label' => 'Makanan Berbau & Bersantan', 'desc' => 'Durian, Jengkol, Petis, Soto, Lodeh, Rawon, dll'],
-                                ['label' => 'Bahan Baku Makanan', 'desc' => 'Beras, Bumbu, Minyak Goreng, dll'],
-                                ['label' => 'Alat Elektronik', 'desc' => 'HP, Laptop, Speaker, Headset, dll'],
-                                ['label' => 'Makanan Fermentasi', 'desc' => 'Tape, Pisang, Anggur (yang dapat berfermentasi)'],
-                                ['label' => 'Barang Berbahaya', 'desc' => 'Senjata Tajam, Narkoba, Miras, Obat Terlarang'],
-                                ['label' => 'Lainnya', 'desc' => 'Rokok, Pakaian berlebihan, Serundeng, Bakso, Kacang'],
+                                ['label' => 'Minuman', 'desc' => 'Segala jenis minuman (Fabrikasi/Bermerk)', 'icon' => 'cup-soda'],
+                                ['label' => 'Makanan Berbau & Bersantan', 'desc' => 'Durian, Jengkol, Petis, Soto, Lodeh, Rawon, dll', 'icon' => 'soup'],
+                                ['label' => 'Bahan Baku Makanan', 'desc' => 'Beras, Bumbu, Minyak Goreng, dll', 'icon' => 'shopping-basket'],
+                                ['label' => 'Alat Elektronik', 'desc' => 'HP, Laptop, Speaker, Headset, dll', 'icon' => 'smartphone'],
+                                ['label' => 'Makanan Fermentasi', 'desc' => 'Tape, Pisang, Anggur (yang dapat berfermentasi)', 'icon' => 'flame'],
+                                ['label' => 'Barang Berbahaya', 'desc' => 'Senjata Tajam, Narkoba, Miras, Obat Terlarang', 'icon' => 'skull'],
+                                ['label' => 'Lainnya', 'desc' => 'Rokok, Pakaian berlebihan, Serundeng, Bakso, Kacang', 'icon' => 'box'],
                             ];
                         @endphp
                         @foreach($dilarang as $item)
-                        <div class="flex items-start gap-4">
-                            <div class="w-1.5 h-1.5 rounded-full bg-red-600 mt-1.5 flex-shrink-0"></div>
+                        <div class="flex items-start gap-4 group">
+                            <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0 group-hover:bg-red-600 group-hover:text-white transition-all">
+                                <i data-lucide="{{ $item['icon'] }}" class="w-5 h-5 text-red-600 group-hover:text-white"></i>
+                            </div>
                             <div>
-                                <h5 class="text-[10px] font-black text-red-900 uppercase tracking-wide">{{ $item['label'] }}</h5>
+                                <h5 class="text-[11px] font-black text-red-900 uppercase tracking-wide mb-0.5">{{ $item['label'] }}</h5>
                                 <p class="text-[11px] text-red-800/60 leading-relaxed">{{ $item['desc'] }}</p>
                             </div>
                         </div>
@@ -317,20 +319,22 @@
                     <div class="space-y-6">
                         @php
                             $boleh = [
-                                ['label' => 'Makanan Olahan', 'desc' => 'Nasi maksimal 3 porsi (Selain Serundeng/Bacem/Bakso)'],
-                                ['label' => 'Sayur Berkuah Bening', 'desc' => 'Tanpa santan dan menggunakan wadah plastik'],
-                                ['label' => 'Buah-buahan', 'desc' => 'Sudah dikupas dan dipotong (No Pisang/Anggur)'],
-                                ['label' => 'Olahan Khusus', 'desc' => 'Segala jenis ikan (sudah dibelah), Telur matang (sudah dibelah)'],
-                                ['label' => 'Sate & Olahan Tusuk', 'desc' => 'Wajib tanpa tusuk sate'],
-                                ['label' => 'Panganan Ringan', 'desc' => 'Gorengan dan jajanan tradisional'],
-                                ['label' => 'Wadah Plastik', 'desc' => 'Dibatasi sebesar ukuran kantong plastik yang disediakan'],
+                                ['label' => 'Makanan Olahan', 'desc' => 'Nasi maksimal 3 porsi (Selain Serundeng/Bacem/Bakso)', 'icon' => 'utensils'],
+                                ['label' => 'Sayur Berkuah Bening', 'desc' => 'Tanpa santan dan menggunakan wadah plastik', 'icon' => 'soup'],
+                                ['label' => 'Buah-buahan', 'desc' => 'Sudah dikupas dan dipotong (No Pisang/Anggur)', 'icon' => 'apple'],
+                                ['label' => 'Olahan Khusus', 'desc' => 'Segala jenis ikan (sudah dibelah), Telur matang (sudah dibelah)', 'icon' => 'fish'],
+                                ['label' => 'Sate & Olahan Tusuk', 'desc' => 'Wajib tanpa tusuk sate', 'icon' => 'circle-slash'],
+                                ['label' => 'Panganan Ringan', 'desc' => 'Gorengan dan jajanan tradisional', 'icon' => 'cookie'],
+                                ['label' => 'Wadah Plastik', 'desc' => 'Dibatasi sebesar ukuran kantong plastik yang disediakan', 'icon' => 'package'],
                             ];
                         @endphp
                         @foreach($boleh as $item)
-                        <div class="flex items-start gap-4">
-                            <div class="w-1.5 h-1.5 rounded-full bg-emerald-600 mt-1.5 flex-shrink-0"></div>
+                        <div class="flex items-start gap-4 group">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                                <i data-lucide="{{ $item['icon'] }}" class="w-5 h-5 text-emerald-600 group-hover:text-white"></i>
+                            </div>
                             <div>
-                                <h5 class="text-[10px] font-black text-emerald-900 uppercase tracking-wide">{{ $item['label'] }}</h5>
+                                <h5 class="text-[11px] font-black text-emerald-900 uppercase tracking-wide mb-0.5">{{ $item['label'] }}</h5>
                                 <p class="text-[11px] text-emerald-800/60 leading-relaxed">{{ $item['desc'] }}</p>
                             </div>
                         </div>

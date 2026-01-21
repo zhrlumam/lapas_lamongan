@@ -23,7 +23,7 @@
     </section>
 
     <!-- Content Sections -->
-    <div class="bg-soft-grey py-20 px-6" x-data="{ imgModal : false, imgModalSrc : '', imgModalDesc : '' }">
+    <div class="bg-soft-grey py-20 px-6" x-data="{ imgModal : false, imgModalSrc : '', imgModalTitle : '', imgModalDesc : '', imgModalKategori : '' }">
         <div class="max-w-5xl mx-auto mb-16 px-6">
             <p class="text-base text-dark-grey/70 leading-relaxed font-medium">
                 Koleksi dokumentasi visual pelaksanaan pembinaan, pengamanan, dan pelayanan publik pada Lembaga Pemasyarakatan Kelas IIB Lamongan.
@@ -35,7 +35,7 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 @forelse($galeri as $item)
                 <div class="group bg-white border border-platinum p-4 rounded-sm hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)] transition-all overflow-hidden cursor-pointer" 
-                     @click="imgModal = true; imgModalSrc = '{{ $item->gambar_url }}'; imgModalDesc = '{{ addslashes($item->judul) }}'">
+                     @click="imgModal = true; imgModalSrc = '{{ $item->gambar_url }}'; imgModalTitle = '{{ addslashes($item->judul) }}'; imgModalDesc = '{{ addslashes($item->deskripsi) }}'; imgModalKategori = '{{ $item->kategori }}'">
                     <div class="aspect-square skeleton mb-6 overflow-hidden relative">
                         <img src="{{ $item->gambar_url }}" alt="{{ $item->judul }}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         <div class="absolute inset-0 bg-midnight-blue/0 group-hover:bg-midnight-blue/40 transition-colors flex items-center justify-center">
@@ -82,12 +82,16 @@
                 </button>
                 
                 <img :src="imgModalSrc" 
-                     class="max-w-full max-h-[80vh] object-contain rounded shadow-2xl border-4 border-white/10"
+                     class="max-w-full max-h-[70vh] object-contain rounded shadow-2xl border-4 border-white/10"
                      x-transition:enter="transition ease-out duration-300"
                      x-transition:enter-start="opacity-0 scale-95"
                      x-transition:enter-end="opacity-100 scale-100">
                 
-                <p x-text="imgModalDesc" class="mt-4 text-white text-center font-bold text-lg tracking-wide"></p>
+                <div class="mt-6 text-center max-w-2xl px-4">
+                    <span x-text="imgModalKategori" class="text-[10px] font-black text-gold-dignity uppercase tracking-[0.2em] mb-2 block"></span>
+                    <h2 x-text="imgModalTitle" class="text-white font-black text-xl lg:text-2xl uppercase tracking-tighter mb-3 leading-tight"></h2>
+                    <p x-text="imgModalDesc" class="text-white/70 text-sm md:text-base leading-relaxed font-medium"></p>
+                </div>
             </div>
         </div>
     </div>

@@ -10,6 +10,53 @@
 @endsection
 
 @section('content')
+<!-- Pulse Stats -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="admin-card p-5 group hover:border-midnight-blue transition-all reveal-on-scroll">
+        <div class="flex justify-between items-start mb-4">
+            <div class="w-10 h-10 bg-soft-grey text-midnight-blue rounded flex items-center justify-center group-hover:bg-midnight-blue group-hover:text-white transition-all">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[10px] font-black text-slate-500 bg-slate-50 px-2 py-0.5 rounded tracking-tighter">Total</span>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total Laporan</p>
+        <p class="text-2xl font-black text-midnight-blue">{{ $stats->total ?? 0 }}</p>
+    </div>
+
+    <div class="admin-card p-5 group hover:border-gold-dignity transition-all reveal-on-scroll" style="transition-delay: 100ms;">
+        <div class="flex justify-between items-start mb-4">
+            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                <i data-lucide="mail" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[10px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded tracking-tighter">Baru</span>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Laporan Masuk</p>
+        <p class="text-2xl font-black text-midnight-blue">{{ $stats->masuk ?? 0 }}</p>
+    </div>
+
+    <div class="admin-card p-5 group hover:border-gold-dignity transition-all reveal-on-scroll" style="transition-delay: 200ms;">
+        <div class="flex justify-between items-start mb-4">
+            <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all">
+                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[10px] font-black text-amber-600 bg-amber-50 px-2 py-0.5 rounded tracking-tighter">Proses</span>
+        </div>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Sedang Diproses</p>
+        <p class="text-2xl font-black text-midnight-blue">{{ $stats->diproses ?? 0 }}</p>
+    </div>
+
+    <div class="admin-card p-5 bg-emerald-500 border-emerald-500 group transition-all reveal-on-scroll" style="transition-delay: 300ms;">
+        <div class="flex justify-between items-start mb-4">
+            <div class="w-10 h-10 bg-white/20 text-white rounded flex items-center justify-center">
+                <i data-lucide="check-circle" class="w-5 h-5"></i>
+            </div>
+            <span class="text-[10px] font-bold text-white/70 uppercase tracking-tighter">Selesai</span>
+        </div>
+        <p class="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Total Selesai</p>
+        <p class="text-2xl font-black text-white">{{ $stats->selesai ?? 0 }}</p>
+    </div>
+</div>
+
 <div class="admin-card overflow-hidden">
     <div class="px-6 py-4 border-b border-platinum flex justify-between items-center bg-soft-grey/30">
         <div class="flex items-center gap-3">

@@ -12,7 +12,16 @@ class PengaduanController extends Controller
     public function index()
     {
         $data = Pengaduan::latest()->paginate(10);
-        return view('admin.pengaduan.index', compact('data'));
+        
+        // Menghitung statistik untuk Dashboard
+        $stats = Pengaduan::selectRaw("
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'Masuk' THEN 1 ELSE 0 END) as masuk,
+            SUM(CASE WHEN status = 'Diproses' THEN 1 ELSE 0 END) as diproses,
+            SUM(CASE WHEN status = 'Selesai' THEN 1 ELSE 0 END) as selesai
+        ")->first();
+
+        return view('admin.pengaduan.index', compact('data', 'stats'));
     }
 
     public function show($id)

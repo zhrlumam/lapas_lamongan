@@ -26,7 +26,7 @@
                 </div>
             </div>
             
-            <form action="{{ route('integrasi.login.post') }}" method="POST" class="p-8 md:p-10 space-y-6">
+            <form id="loginForm" action="{{ route('integrasi.login.post') }}" method="POST" class="p-8 md:p-10 space-y-6">
                 @csrf
                 
                 @if(session('error'))
@@ -42,18 +42,30 @@
                         <p class="text-[11px] text-green-600 font-bold uppercase tracking-tighter">{{ session('success') }}</p>
                     </div>
                 @endif
+
+                <!-- Error Alert Container (untuk CSRF error) -->
+                <div id="csrfErrorAlert" class="hidden p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-600 shrink-0 mt-0.5"></i>
+                        <div>
+                            <p class="text-[11px] text-yellow-800 font-bold uppercase tracking-tight mb-1">Sesi Kedaluwarsa</p>
+                            <p class="text-[10px] text-yellow-700 leading-relaxed">Halaman akan dimuat ulang otomatis dalam <span id="countdown">3</span> detik...</p>
+                        </div>
+                    </div>
+                </div>
+                
                 <div>
                     <label class="block text-[10px] font-black text-dark-grey uppercase tracking-widest mb-2">NIK Penjamin</label>
-                    <input type="text" name="nik" required placeholder="Masukkan NIK sesuai KTP" class="w-full px-5 py-4 bg-soft-grey border border-platinum rounded-xl focus:ring-2 focus:ring-gold-dignity/50 outline-none transition uppercase text-sm font-bold text-midnight-blue placeholder:normal-case">
+                    <input type="text" name="nik" id="nikInput" value="{{ old('nik') }}" required placeholder="Masukkan NIK sesuai KTP" class="w-full px-5 py-4 bg-soft-grey border border-platinum rounded-xl focus:ring-2 focus:ring-gold-dignity/50 outline-none transition uppercase text-sm font-bold text-midnight-blue placeholder:normal-case">
                 </div>
                 
                 <div>
                     <label class="block text-[10px] font-black text-dark-grey uppercase tracking-widest mb-2">Nama WBP</label>
-                    <input type="text" name="wbp" required placeholder="Masukkan Nama Warga Binaan" class="w-full px-5 py-4 bg-soft-grey border border-platinum rounded-xl focus:ring-2 focus:ring-gold-dignity/50 outline-none transition uppercase text-sm font-bold text-midnight-blue placeholder:normal-case">
+                    <input type="text" name="wbp" id="wbpInput" value="{{ old('wbp') }}" required placeholder="Masukkan Nama Warga Binaan" class="w-full px-5 py-4 bg-soft-grey border border-platinum rounded-xl focus:ring-2 focus:ring-gold-dignity/50 outline-none transition uppercase text-sm font-bold text-midnight-blue placeholder:normal-case">
                 </div>
 
-                <button type="submit" class="w-full bg-midnight-blue text-white py-4 rounded-xl font-black uppercase tracking-[0.15em] hover:bg-gold-dignity transition-all flex items-center justify-center gap-2 shadow-lg text-xs md:text-sm group">
-                    Masuk Sistem <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                <button type="submit" id="submitBtn" class="w-full bg-midnight-blue text-white py-4 rounded-xl font-black uppercase tracking-[0.15em] hover:bg-gold-dignity transition-all flex items-center justify-center gap-2 shadow-lg text-xs md:text-sm group">
+                    <span id="btnText">Masuk Sistem</span> <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
                 </button>
                 
                 <!-- Google Login Option -->
@@ -83,4 +95,81 @@
             </form>
         </div>
     </section>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('loginForm');
+            const nikInput = document.getElementById('nikInput');
+            const wbpInput = document.getElementById('wbpInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const csrfErrorAlert = document.getElementById('csrfErrorAlert');
+            const countdownSpan = document.getElementById('countdown');
+
+            // Restore data dari localStorage jika ada
+            const savedNik = localStorage.getItem('integrasi_nik');
+            const savedWbp = localStorage.getItem('integrasi_wbp');
+            
+            if (savedNik) {
+                nikInput.value = savedNik;
+                localStorage.removeItem('integrasi_nik');
+            }
+            
+            if (savedWbp) {
+                wbpInput.value = savedWbp;
+                localStorage.removeItem('integrasi_wbp');
+            }
+
+            // Handle form submit
+            form.addEventListener('submit', function(e) {
+                // Simpan data ke localStorage sebelum submit
+                localStorage.setItem('integrasi_nik', nikInput.value);
+                localStorage.setItem('integrasi_wbp', wbpInput.value);
+
+                // Ubah tombol jadi loading
+                submitBtn.disabled = true;
+                btnText.textContent = 'Memproses...';
+            });
+
+            // Cek jika ada error 419 dari URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('csrf_error') === '1') {
+                showCsrfError();
+            }
+
+            function showCsrfError() {
+                csrfErrorAlert.classList.remove('hidden');
+                let countdown = 3;
+                
+                const interval = setInterval(function() {
+                    countdown--;
+                    countdownSpan.textContent = countdown;
+                    
+                    if (countdown <= 0) {
+                        clearInterval(interval);
+                        // Reload halaman tanpa parameter
+                        window.location.href = '{{ route("integrasi.login") }}';
+                    }
+                }, 1000);
+            }
+
+            // Auto-refresh CSRF token setiap 10 menit
+            setInterval(function() {
+                fetch('{{ route("integrasi.login") }}')
+                    .then(response => response.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newToken = doc.querySelector('input[name="_token"]').value;
+                        document.querySelector('input[name="_token"]').value = newToken;
+                        console.log('CSRF token refreshed');
+                    })
+                    .catch(error => {
+                        console.error('Failed to refresh CSRF token:', error);
+                    });
+            }, 600000); // 10 menit
+        });
+    </script>
+    @endpush
 @endsection

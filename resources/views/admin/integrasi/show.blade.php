@@ -109,27 +109,28 @@
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-platinum">
                 @if($item->status === 'pending')
-                <form action="{{ route('admin.integrasi.status', $item->id) }}" method="POST" class="flex-1">
+                <form action="{{ route('admin.integrasi.status', $item->id) }}" method="POST" class="flex-1" id="approveForm">
                     @csrf
                     <input type="hidden" name="status" value="approved">
-                    <button type="submit" class="w-full py-3 bg-emerald-600 text-white rounded text-[11px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
+                    <button type="button" onclick="confirmApprove()" class="w-full py-3 bg-emerald-600 text-white rounded text-[11px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
                         <i data-lucide="check-circle" class="w-4 h-4"></i>
                         Setujui Pengajuan
                     </button>
                 </form>
-                <form action="{{ route('admin.integrasi.status', $item->id) }}" method="POST" class="flex-1">
+                <form action="{{ route('admin.integrasi.status', $item->id) }}" method="POST" class="flex-1" id="rejectForm">
                     @csrf
                     <input type="hidden" name="status" value="rejected">
-                    <button type="submit" class="w-full py-3 bg-red-600 text-white rounded text-[11px] font-black uppercase tracking-widest hover:bg-red-700 transition-all flex items-center justify-center gap-2">
+                    <input type="hidden" name="alasan_penolakan" id="alasan_penolakan">
+                    <button type="button" onclick="confirmReject()" class="w-full py-3 bg-red-600 text-white rounded text-[11px] font-black uppercase tracking-widest hover:bg-red-700 transition-all flex items-center justify-center gap-2">
                         <i data-lucide="x-circle" class="w-4 h-4"></i>
                         Tolak Pengajuan
                     </button>
                 </form>
                 @endif
-                <form action="{{ route('admin.integrasi.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.')" class="flex-1">
+                <form action="{{ route('admin.integrasi.destroy', $item->id) }}" method="POST" class="flex-1" id="deleteForm">
                     @csrf
                     @method('DELETE')
-                    <button type="submit" class="w-full py-3 bg-slate-600 text-white rounded text-[11px] font-black uppercase tracking-widest hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
+                    <button type="button" onclick="confirmDelete()" class="w-full py-3 bg-slate-600 text-white rounded text-[11px] font-black uppercase tracking-widest hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                         Hapus Data
                     </button>
@@ -169,4 +170,72 @@
         </div>
     </div>
 </div>
+
+<script>
+function confirmApprove() {
+    Swal.fire({
+        title: 'Setujui Pengajuan?',
+        text: 'Pengajuan akan disetujui dan penjamin dapat mengunduh dokumen.',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Setujui',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('approveForm').submit();
+        }
+    });
+}
+
+function confirmReject() {
+    Swal.fire({
+        title: 'Tolak Pengajuan?',
+        html: `
+            <p class="mb-4 text-sm text-gray-600">Silakan masukkan alasan penolakan:</p>
+            <textarea id="swal-alasan" class="swal2-input w-full" rows="4" placeholder="Contoh: NIK tidak valid, harus 16 digit" style="height: 100px; resize: vertical;"></textarea>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Tolak',
+        cancelButtonText: 'Batal',
+        reverseButtons: true,
+        preConfirm: () => {
+            const alasan = document.getElementById('swal-alasan').value;
+            if (!alasan || alasan.trim() === '') {
+                Swal.showValidationMessage('Alasan penolakan wajib diisi!');
+                return false;
+            }
+            return alasan;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('alasan_penolakan').value = result.value;
+            document.getElementById('rejectForm').submit();
+        }
+    });
+}
+
+function confirmDelete() {
+    Swal.fire({
+        title: 'Hapus Data?',
+        text: 'Data pengajuan ini akan dihapus permanen dan tidak dapat dikembalikan!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Hapus',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('deleteForm').submit();
+        }
+    });
+}
+</script>
 @endsection

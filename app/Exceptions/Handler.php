@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Illuminate\Auth\AuthenticationException;
 
 class Handler extends ExceptionHandler
 {
@@ -33,5 +34,40 @@ class Handler extends ExceptionHandler
                 return redirect()->route('admin.login')->with('error', 'Anda tidak memiliki hak akses untuk halaman tersebut.');
             }
         });
+
+        // Handle CSRF Token Mismatch (419 Page Expired)
+        $this->renderable(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            // Jika request dari halaman integrasi
+            if ($request->is('integrasi/*') || $request->is('integrasi')) {
+                return redirect()->route('integrasi.login')
+                    ->with('error', 'Sesi Anda telah kedaluwarsa. Silakan login kembali.')
+                    ->withInput($request->except(['_token', 'password']));
+            }
+            
+            // Untuk halaman lain, tampilkan pesan umum
+            return back()->with('error', 'Sesi Anda telah kedaluwarsa. Silakan muat ulang halaman dan coba lagi.');
+        });
+    }
+
+    /**
+     * Convert an authentication exception into a response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Auth\AuthenticationException  $exception
+     * @return \Symfony\Component\HttpKernel\Exception\HttpException|\Illuminate\Http\Response
+     */
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        if ($request->expectsJson()) {
+            return response()->json(['message' => $exception->getMessage()], 401);
+        }
+
+        // Jika request dari bagian integrasi, lempar ke login integrasi
+        if ($request->is('integrasi/*') || $request->is('integrasi')) {
+            return redirect()->guest(route('integrasi.login'));
+        }
+
+        // Default (untuk admin dan lainnya) lempar ke admin login
+        return redirect()->guest(route('admin.login'));
     }
 }

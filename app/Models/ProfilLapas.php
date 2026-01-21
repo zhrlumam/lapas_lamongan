@@ -41,7 +41,7 @@ class ProfilLapas extends Model
             'sejarah' => 'Informasi sejarah akan segera ditambahkan.',
             'visi' => 'Menjadi lembaga pemasyarakatan yang profesional dan terpercaya.',
             'misi' => 'Memberikan pembinaan yang berkualitas kepada warga binaan.',
-            'alamat' => 'Jl. Sumargo No. 12, Tlogoanyar, Kec. Lamongan, Kabupaten Lamongan, Jawa Timur 62218'
+            'alamat' => 'JL. Sumargo, No.19, Kec. Lamongan'
         ];
     }
 }

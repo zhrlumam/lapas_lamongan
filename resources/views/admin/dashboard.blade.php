@@ -32,7 +32,7 @@
             <div class="w-10 h-10 bg-soft-grey text-midnight-blue rounded flex items-center justify-center group-hover:bg-midnight-blue group-hover:text-white transition-all">
                 <i data-lucide="star" class="w-5 h-5"></i>
             </div>
-            <span class="text-[10px] font-black text-amber-500 bg-amber-50 px-2 py-0.5 rounded tracking-tighter">IKM</span>
+            <span class="text-[10px] font-black text-amber-500 bg-amber-50 px-2 py-0.5 rounded tracking-tighter">SKM</span>
         </div>
         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Indeks Kepuasan</p>
         <p class="text-2xl font-black text-midnight-blue">{{ $skorIkm }}</p>

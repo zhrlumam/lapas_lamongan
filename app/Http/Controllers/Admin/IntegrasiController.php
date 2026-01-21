@@ -49,18 +49,26 @@ class IntegrasiController extends Controller
     {
         $request->validate([
             'status' => 'required|in:approved,rejected,pending',
-            'alasan' => 'nullable|string'
+            'alasan_penolakan' => 'required_if:status,rejected|nullable|string|max:500'
+        ], [
+            'alasan_penolakan.required_if' => 'Alasan penolakan wajib diisi jika status ditolak.',
         ]);
 
         $item = Integrasi::findOrFail($id);
         
-        // We can reuse 'file_surat' or add a new column for 'alasan' if needed.
-        // For now, let's just update the status.
+        // Update status dan alasan penolakan
         $item->update([
             'status' => $request->status,
+            'alasan_penolakan' => $request->status === 'rejected' ? $request->alasan_penolakan : null,
         ]);
 
-        return back()->with('success', 'Status integrasi berhasil diperbarui.');
+        $statusLabel = [
+            'approved' => 'disetujui',
+            'rejected' => 'ditolak',
+            'pending' => 'dikembalikan ke pending'
+        ];
+
+        return back()->with('success', 'Pengajuan berhasil ' . ($statusLabel[$request->status] ?? 'diperbarui') . '.');
     }
 
     public function bulkStatus(Request $request)

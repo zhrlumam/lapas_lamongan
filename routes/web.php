@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\IntegrasiController;
+use App\Http\Controllers\SuratJaminanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,28 +79,93 @@ Route::prefix('integrasi')->name('integrasi.')->group(function () {
     Route::get('/google/callback', [\App\Http\Controllers\GoogleController::class, 'handleGoogleCallback'])->name('google.callback');
 
     // 3. Halaman Form & Proses (Setelah Login)
-    // Untuk saat ini kita biarkan tanpa middleware 'auth' ketat di route jika controller handle session manual,
-    // ATAU jika kita sudah pakai Auth::login() via Google, kita bisa pakai middleware 'auth'.
-    // Namun IntegrasiController eksisting mungkin pakai session manual ('nik_penjamin').
-    // Jadi biarkan 'web' middleware group (standard), logic login check ada di controller.
-    
-    Route::get('/form', [IntegrasiController::class, 'form'])->name('form');
-    
-    // SECURITY: Rate limit PDF generation - max 3 per minute
-    Route::post('/pdf', [IntegrasiController::class, 'generatePDF'])
-        ->middleware('throttle:3,1')
-        ->name('pdf');
+    // SECURITY FIX: Protected routes dengan middleware auth:penjamin
+    Route::middleware(['auth:penjamin'])->group(function () {
+        // Dashboard route
+        Route::get('/dashboard', [IntegrasiController::class, 'dashboard'])->name('dashboard');
+
+        Route::get('/form', [IntegrasiController::class, 'form'])->name('form');
         
-    Route::get('/dashboard', [IntegrasiController::class, 'dashboard'])->name('dashboard');
-    Route::get('/complete-profile', [IntegrasiController::class, 'completeProfile'])->name('complete_profile');
-    
-    // SECURITY: Rate limit profile update - max 5 per minute
-    Route::post('/complete-profile', [IntegrasiController::class, 'storeProfile'])
-        ->middleware('throttle:5,1')
-        ->name('complete_profile.post');
+        // Submit pengajuan (TAHAP 1)
+        Route::post('/submit', [IntegrasiController::class, 'submitPengajuan'])
+            ->middleware('throttle:10,1')
+            ->name('submit');
         
-    Route::post('/logout', [IntegrasiController::class, 'logout'])->name('logout');
-    Route::get('/download-template', [IntegrasiController::class, 'downloadTemplate'])->name('download_template');
+        // Download WORD untuk yang sudah approved (TAHAP 3)
+        Route::get('/download/{id}', [IntegrasiController::class, 'downloadApprovedPDF'])
+            ->name('download.pdf');
+            
+        Route::get('/complete-profile', [IntegrasiController::class, 'completeProfile'])->name('complete_profile');
+        
+        // SECURITY: Rate limit profile update - max 5 per minute
+        Route::post('/complete-profile', [IntegrasiController::class, 'storeProfile'])
+            ->middleware('throttle:5,1')
+            ->name('complete_profile.post');
+            
+        Route::post('/logout', [IntegrasiController::class, 'logout'])->name('logout');
+        Route::get('/download-template', [IntegrasiController::class, 'downloadTemplate'])->name('download_template');
+    });
+});
+
+// TEST ROUTE - Cek template placeholders
+Route::get('/test-template', function() {
+    $templatePath = storage_path('app/templates/template_jaminan.docx');
+    
+    if (!file_exists($templatePath)) {
+        return "Template tidak ditemukan!";
+    }
+    
+    try {
+        $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templatePath);
+        $variables = $templateProcessor->getVariables();
+        
+        $output = "<h1>Testing Template</h1>";
+        $output .= "<p>Template path: $templatePath</p>";
+        $output .= "<h2>Placeholder yang ditemukan:</h2>";
+        
+        if (empty($variables)) {
+            $output .= "<p style='color:red'><strong>TIDAK ADA!</strong> Template tidak punya placeholder yang valid.</p>";
+            $output .= "<p>Kemungkinan penyebab:</p>";
+            $output .= "<ul>";
+            $output .= "<li>Placeholder menggunakan formatting (bold, italic, dll)</li>";
+            $output .= "<li>Placeholder terpisah oleh formatting</li>";
+            $output .= "<li>Placeholder tidak menggunakan format \${...}</li>";
+            $output .= "</ul>";
+            $output .= "<p><strong>Solusi:</strong> Buat ulang template dengan ketik manual \${nama_penjamin} tanpa formatting</p>";
+        } else {
+            $output .= "<ul>";
+            foreach ($variables as $var) {
+                $output .= "<li>\${" . $var . "}</li>";
+            }
+            $output .= "</ul>";
+        }
+        
+        return $output;
+        
+    } catch (\Exception $e) {
+        return "ERROR: " . $e->getMessage();
+    }
+});
+
+// TEST ROUTE - Cek data terbaru
+Route::get('/test-data', function() {
+    $latest = \App\Models\Integrasi::latest()->first();
+    
+    if (!$latest) {
+        return "<h1>Tidak ada data di database!</h1><p>Silakan submit pengajuan baru.</p>";
+    }
+    
+    return "<h1>Data Terbaru (ID: {$latest->id})</h1>" .
+           "<table border='1' cellpadding='10'>" .
+           "<tr><td>Nama Penjamin</td><td>{$latest->nama_penjamin}</td></tr>" .
+           "<tr><td>Umur Penjamin</td><td>" . ($latest->umur_penjamin ?? '<span style=\"color:red\">NULL</span>') . "</td></tr>" .
+           "<tr><td>Pekerjaan</td><td>" . ($latest->pekerjaan_penjamin ?? '<span style=\"color:red\">NULL</span>') . "</td></tr>" .
+           "<tr><td>Hubungan</td><td>" . ($latest->hubungan_penjamin ?? '<span style=\"color:red\">NULL</span>') . "</td></tr>" .
+           "<tr><td>Nama WBP</td><td>{$latest->nama_wbp}</td></tr>" .
+           "<tr><td>Umur WBP</td><td>" . ($latest->umur_wbp ?? '<span style=\"color:red\">NULL</span>') . "</td></tr>" .
+           "<tr><td>Created At</td><td>{$latest->created_at}</td></tr>" .
+           "<tr><td>Status</td><td>{$latest->status}</td></tr>" .
+           "</table>";
 });
 
 Route::get('/login', function() { return redirect()->route('admin.login'); })->name('login');
@@ -136,7 +202,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/laporan/wbp/excel', [\App\Http\Controllers\Admin\LaporanController::class, 'exportWBPExcel'])->name('laporan.wbp.excel');
         Route::get('/laporan/kunjungan/pdf', [\App\Http\Controllers\Admin\LaporanController::class, 'exportKunjungan'])->name('laporan.kunjungan.pdf');
         Route::get('/laporan/kunjungan/excel', [\App\Http\Controllers\Admin\LaporanController::class, 'exportKunjunganExcel'])->name('laporan.kunjungan.excel');
-        Route::get('/laporan/traffic', [\App\Http\Controllers\Admin\LaporanController::class, 'traffic'])->name('laporan.traffic');
+        
+        Route::resource('survey', \App\Http\Controllers\Admin\SurveyController::class);
+        Route::post('/survey/{id}/activate', [\App\Http\Controllers\Admin\SurveyController::class, 'activate'])->name('survey.activate');
     });
 
     // 3. Komunikasi & Respon (Pengaduan)
@@ -144,21 +212,26 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::resource('pengaduan', \App\Http\Controllers\Admin\PengaduanController::class)->only(['index', 'show', 'destroy']);
         Route::post('/pengaduan/{id}/status', [\App\Http\Controllers\Admin\PengaduanController::class, 'updateStatus'])->name('pengaduan.status');
         Route::post('/pengaduan/{id}/reply', [\App\Http\Controllers\Admin\PengaduanController::class, 'reply'])->name('pengaduan.reply');
-        
-        Route::resource('rating', \App\Http\Controllers\Admin\RatingAdminController::class)->only(['index', 'destroy']);
     });
 
     // 4. Pengaturan & Master Data (Akses Semua Admin)
     Route::get('/profil', [\App\Http\Controllers\Admin\ProfilController::class, 'index'])->name('profil.index');
     Route::post('/profil/update', [\App\Http\Controllers\Admin\ProfilController::class, 'update'])->name('profil.update');
     Route::resource('produk', \App\Http\Controllers\Admin\ProdukController::class);
-    Route::resource('survey', \App\Http\Controllers\Admin\SurveyController::class);
-    Route::post('/survey/{id}/activate', [\App\Http\Controllers\Admin\SurveyController::class, 'activate'])->name('survey.activate');
+    Route::get('/laporan/traffic', [\App\Http\Controllers\Admin\LaporanController::class, 'traffic'])->name('laporan.traffic');
+    Route::resource('rating', \App\Http\Controllers\Admin\RatingAdminController::class)->only(['index', 'destroy']);
 
     // 5. Advanced User Management (Super Admin ONLY)
     Route::middleware(['can:super'])->group(function () {
         Route::resource('manage-admin', \App\Http\Controllers\Admin\AdminManageController::class);
         Route::resource('manage-users', \App\Http\Controllers\Admin\UserManageController::class);
+        
+        // Backup Database Management
+        Route::get('/backup', [\App\Http\Controllers\Admin\BackupController::class, 'index'])->name('backup.index');
+        Route::post('/backup/create', [\App\Http\Controllers\Admin\BackupController::class, 'create'])->name('backup.create');
+        Route::get('/backup/download/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'download'])->name('backup.download');
+        Route::delete('/backup/delete/{filename}', [\App\Http\Controllers\Admin\BackupController::class, 'destroy'])->name('backup.destroy');
+        Route::post('/backup/restore', [\App\Http\Controllers\Admin\BackupController::class, 'restore'])->name('backup.restore');
     });
 });
 

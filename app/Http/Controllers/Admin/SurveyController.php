@@ -20,6 +20,7 @@ class SurveyController extends Controller
             'bulan' => 'required',
             'skor_ipk' => 'required|numeric',
             'skor_ikm' => 'required|numeric',
+            'jumlah_responden' => 'required|integer|min:0',
             'keterangan' => 'required|in:Sangat Baik,Baik,Cukup,Kurang',
         ]);
 
@@ -27,6 +28,7 @@ class SurveyController extends Controller
             'bulan' => $request->bulan,
             'skor_ipk' => $request->skor_ipk,
             'skor_ikm' => $request->skor_ikm,
+            'jumlah_responden' => $request->jumlah_responden,
             'keterangan' => $request->keterangan,
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
@@ -44,6 +46,7 @@ class SurveyController extends Controller
             'bulan' => 'required',
             'skor_ipk' => 'required|numeric',
             'skor_ikm' => 'required|numeric',
+            'jumlah_responden' => 'required|integer|min:0',
             'keterangan' => 'required|in:Sangat Baik,Baik,Cukup,Kurang',
         ]);
 
@@ -52,6 +55,7 @@ class SurveyController extends Controller
             'bulan' => $request->bulan,
             'skor_ipk' => $request->skor_ipk,
             'skor_ikm' => $request->skor_ikm,
+            'jumlah_responden' => $request->jumlah_responden,
             'keterangan' => $request->keterangan,
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);

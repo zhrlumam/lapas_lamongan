@@ -3,14 +3,24 @@
 @section('title', 'Layanan Pengaduan')
 
 @section('content')
-    <!-- Header Section -->
-    <!-- Header Section -->
-    <section class="relative flex flex-col items-center justify-center text-center px-4 pt-40 pb-20 bg-white border-b border-platinum">
-        <div class="relative z-10 max-w-5xl mx-auto w-full">
-            <span class="text-gold-dignity font-bold uppercase text-[10px] tracking-[0.3em] mb-4 block">Integritas Pelayanan</span>
-            <h1 class="text-3xl md:text-4xl font-extrabold text-midnight-blue mb-4 uppercase tracking-tight leading-tight">Portal Pengaduan Masyarakat</h1>
-            <p class="text-sm md:text-base text-dark-grey max-w-2xl mx-auto leading-relaxed font-normal">
-                Saran, keluhan, dan laporkan segala bentuk ketidaksesuaian pelayanan demi mewujudkan wilayah bebas dari korupsi melalui sistem audit yang akuntabel.
+    <!-- Header Section (Premium Style) -->
+    <section class="pt-40 pb-20 px-6 bg-midnight-blue relative overflow-hidden">
+        <!-- Decorative Background Element -->
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-white/5 skew-x-12 translate-x-1/2"></div>
+        
+        <div class="max-w-5xl mx-auto relative z-10">
+            <!-- Breadcrumb -->
+            <nav class="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-6 font-sans">
+                <a href="/" class="hover:text-gold-dignity transition-colors">Beranda</a>
+                <i data-lucide="chevron-right" class="w-3 h-3"></i>
+                <span class="text-gold-dignity">Layanan Pengaduan</span>
+            </nav>
+
+            <h1 class="text-3xl lg:text-5xl font-black text-white uppercase tracking-tighter mb-4">
+                Portal Pengaduan
+            </h1>
+            <p class="text-base text-platinum/80 leading-relaxed max-w-2xl font-medium">
+                Saran, keluhan, dan laporkan segala bentuk ketidaksesuaian pelayanan demi mewujudkan pelayanan yang transparan dan akuntabel.
             </p>
         </div>
     </section>
@@ -152,31 +162,30 @@
                             @csrf
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div class="space-y-2">
-                                    <label class="text-[11px] font-black text-midnight-blue uppercase tracking-widest">Nama Lengkap</label>
-                                    <input type="text" name="nama_pelapor" required class="w-full bg-soft-grey border-2 border-platinum rounded-xl px-5 py-4 text-sm font-bold text-midnight-blue focus:outline-none focus:border-gold-dignity transition-all placeholder:font-normal placeholder:text-dark-grey/40" placeholder="Nama samaran diperbolehkan">
+                                    <label class="text-[10px] md:text-[11px] font-black text-midnight-blue uppercase tracking-widest pl-1">Nama Lengkap <span class="text-red-500 font-bold">*</span></label>
+                                    <input type="text" name="nama_pelapor" required class="w-full bg-white border border-platinum rounded-xl px-5 py-4 text-sm font-semibold text-midnight-blue focus:outline-none focus:border-gold-dignity focus:ring-4 focus:ring-gold-dignity/5 transition-all placeholder:font-normal placeholder:text-dark-grey/30" placeholder="Nama samaran diperbolehkan">
                                 </div>
                                 <div class="space-y-2">
-                                    <label class="text-[11px] font-black text-midnight-blue uppercase tracking-widest">Nomor Telepon / WA</label>
-                                    <input type="number" name="telepon" required class="w-full bg-soft-grey border-2 border-platinum rounded-xl px-5 py-4 text-sm font-bold text-midnight-blue focus:outline-none focus:border-gold-dignity transition-all placeholder:font-normal placeholder:text-dark-grey/40 appearance-none" placeholder="08xxxxxxxxxx">
+                                    <label class="text-[10px] md:text-[11px] font-black text-midnight-blue uppercase tracking-widest pl-1">Nomor Telepon / WA <span class="text-red-500 font-bold">*</span></label>
+                                    <input type="number" name="telepon" required class="w-full bg-white border border-platinum rounded-xl px-5 py-4 text-sm font-semibold text-midnight-blue focus:outline-none focus:border-gold-dignity focus:ring-4 focus:ring-gold-dignity/5 transition-all placeholder:font-normal placeholder:text-dark-grey/30 appearance-none" placeholder="08xxxxxxxxxx">
                                 </div>
                             </div>
 
-
                             <div class="space-y-2">
-                                <label class="text-[11px] font-black text-midnight-blue uppercase tracking-widest">Detail Laporan</label>
-                                <textarea name="isi_pengaduan" rows="6" required class="w-full bg-soft-grey border-2 border-platinum rounded-xl px-5 py-4 text-sm font-medium text-midnight-blue focus:outline-none focus:border-gold-dignity transition-all placeholder:font-normal placeholder:text-dark-grey/40 leading-relaxed" placeholder="Jelaskan kronologi kejadian, lokasi, dan pihak yang terlibat secara rinci..."></textarea>
+                                <label class="text-[10px] md:text-[11px] font-black text-midnight-blue uppercase tracking-widest pl-1">Detail Laporan <span class="text-red-500 font-bold">*</span></label>
+                                <textarea name="isi_pengaduan" rows="6" required class="w-full bg-white border border-platinum rounded-xl px-5 py-4 text-sm font-medium text-midnight-blue focus:outline-none focus:border-gold-dignity focus:ring-4 focus:ring-gold-dignity/5 transition-all placeholder:font-normal placeholder:text-dark-grey/30 leading-relaxed" placeholder="Jelaskan kronologi kejadian secara rinci..."></textarea>
                             </div>
 
                             <div class="space-y-2">
-                                <label class="text-[11px] font-black text-midnight-blue uppercase tracking-widest">Bukti Pendukung (Opsional)</label>
+                                <label class="text-[10px] md:text-[11px] font-black text-midnight-blue uppercase tracking-widest pl-1">Bukti Pendukung (Opsional)</label>
                                 <div class="relative">
-                                    <input type="file" name="bukti_file" class="w-full bg-soft-grey border-2 border-platinum rounded-xl px-5 py-3 text-sm text-dark-grey file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-black file:bg-midnight-blue file:text-white hover:file:bg-gold-dignity transition-all cursor-pointer">
-                                    <p class="text-[10px] text-dark-grey/50 mt-2 px-1">Format: JPG, PDF, DOC (Maks. 2MB)</p>
+                                    <input type="file" name="bukti_file" class="w-full bg-white border border-platinum rounded-xl px-5 py-3 text-sm text-dark-grey file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-black file:bg-midnight-blue file:text-white hover:file:bg-gold-dignity transition-all cursor-pointer">
+                                    <p class="text-[9px] text-dark-grey/50 mt-2 px-1 font-medium">Format: JPG, PNG, PDF (Maks. 2MB)</p>
                                 </div>
                             </div>
 
                             <div class="pt-6">
-                                <button type="submit" class="w-full bg-midnight-blue text-white text-[11px] font-black uppercase tracking-[0.2em] py-5 rounded-xl hover:bg-gold-dignity transition-all hover:shadow-xl shadow-lg transform hover:-translate-y-1 duration-300 flex items-center justify-center gap-3">
+                                <button type="submit" class="w-full bg-midnight-blue text-white text-[11px] font-black uppercase tracking-[0.2em] py-5 rounded-xl hover:bg-gold-dignity transition-all shadow-lg hover:shadow-xl transform active:scale-[0.98] duration-300 flex items-center justify-center gap-3">
                                     <i data-lucide="send" class="w-4 h-4"></i>
                                     Kirim Laporan Resmi
                                 </button>

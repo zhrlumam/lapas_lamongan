@@ -27,6 +27,7 @@ class ProfilController extends Controller
             'misi' => 'required|string',
             'sejarah' => 'nullable|string',
             'sambutan_kepala' => 'nullable|string',
+            'alamat' => 'nullable|string',
             'foto_kepala' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 

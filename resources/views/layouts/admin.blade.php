@@ -289,13 +289,12 @@ class="antialiased">
                     title="Eksport Laporan">
                     <i data-lucide="printer" class="w-4 h-4 flex-shrink-0"></i>
                     <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Eksport Laporan</span>
-                </a>
-                <a href="{{ route('admin.laporan.traffic') }}" 
+                <a href="{{ route('admin.survey.index') }}" 
                     :class="sidebarCollapsed ? 'justify-center px-0' : 'px-3'"
-                    class="flex items-center gap-3 py-2.5 rounded {{ Request::is('admin/laporan/traffic') ? 'bg-gold-dignity text-midnight-blue' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} font-bold text-[13px] transition-all"
-                    title="Statistik Traffic">
-                    <i data-lucide="bar-chart-3" class="w-4 h-4 flex-shrink-0"></i>
-                    <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Statistik Traffic</span>
+                    class="flex items-center gap-3 py-2.5 rounded {{ Request::is('admin/survey*') ? 'bg-gold-dignity text-midnight-blue' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} font-bold text-[13px] transition-all"
+                    title="Indeks Kepuasan">
+                    <i data-lucide="star" class="w-4 h-4 flex-shrink-0"></i>
+                    <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Indeks Kepuasan</span>
                 </a>
                 @endcan
 
@@ -307,13 +306,6 @@ class="antialiased">
                     title="Pengaduan WBS">
                     <i data-lucide="message-square" class="w-4 h-4 flex-shrink-0"></i>
                     <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Pengaduan WBS</span>
-                </a>
-                <a href="{{ route('admin.rating.index') }}" 
-                    :class="sidebarCollapsed ? 'justify-center px-0' : 'px-3'"
-                    class="flex items-center gap-3 py-2.5 rounded {{ Request::is('admin/rating*') ? 'bg-gold-dignity text-midnight-blue' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} font-bold text-[13px] transition-all"
-                    title="Respon Layanan">
-                    <i data-lucide="heart" class="w-4 h-4 flex-shrink-0"></i>
-                    <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Respon Layanan</span>
                 </a>
                 @endcan
 
@@ -341,13 +333,30 @@ class="antialiased">
                     <i data-lucide="settings" class="w-4 h-4 flex-shrink-0"></i>
                     <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Profil Instansi</span>
                 </a>
-                <a href="{{ route('admin.survey.index') }}" 
+                <a href="{{ route('admin.laporan.traffic') }}" 
                     :class="sidebarCollapsed ? 'justify-center px-0' : 'px-3'"
-                    class="flex items-center gap-3 py-2.5 rounded {{ Request::is('admin/survey*') ? 'bg-gold-dignity text-midnight-blue' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} font-bold text-[13px] transition-all"
-                    title="Indeks Kepuasan">
-                    <i data-lucide="star" class="w-4 h-4 flex-shrink-0"></i>
-                    <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Indeks Kepuasan</span>
+                    class="flex items-center gap-3 py-2.5 rounded {{ Request::is('admin/laporan/traffic') ? 'bg-gold-dignity text-midnight-blue' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} font-bold text-[13px] transition-all"
+                    title="Statistik Traffic">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 flex-shrink-0"></i>
+                    <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Statistik Traffic</span>
                 </a>
+                <a href="{{ route('admin.rating.index') }}" 
+                    :class="sidebarCollapsed ? 'justify-center px-0' : 'px-3'"
+                    class="flex items-center gap-3 py-2.5 rounded {{ Request::is('admin/rating*') ? 'bg-gold-dignity text-midnight-blue' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} font-bold text-[13px] transition-all"
+                    title="Respon Layanan">
+                    <i data-lucide="heart" class="w-4 h-4 flex-shrink-0"></i>
+                    <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Respon Layanan</span>
+                </a>
+                
+                @can('super')
+                <a href="{{ route('admin.backup.index') }}" 
+                    :class="sidebarCollapsed ? 'justify-center px-0' : 'px-3'"
+                    class="flex items-center gap-3 py-2.5 rounded {{ Request::is('admin/backup*') ? 'bg-gold-dignity text-midnight-blue' : 'text-slate-300 hover:bg-white/5 hover:text-white' }} font-bold text-[13px] transition-all"
+                    title="Backup Database">
+                    <i data-lucide="database" class="w-4 h-4 flex-shrink-0"></i>
+                    <span x-show="!sidebarCollapsed" class="whitespace-nowrap">Backup Database</span>
+                </a>
+                @endcan
             </nav>
 
             <div class="p-4 border-t border-white/5 overflow-hidden">

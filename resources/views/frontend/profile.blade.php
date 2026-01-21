@@ -163,11 +163,11 @@
                     
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                         <div class="rounded-sm overflow-hidden border border-platinum aspect-video grayscale-0 transition-all duration-700">
-                             <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3958.9826903256944!2d112.41387557499841!3d-7.127998292875853!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e77f74e1e13243d%3A0x5772601bb1e12cc1!2sLAPAS%20Kelas%20IIB%20Lamongan!5e0!3m2!1sid!2sid!4v1768008968329!5m2!1sid!2sid" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                             <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3958.9826903256944!2d112.41387557499841!3d-7.127998292875853!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zN8KwMDcnNDEuMCJTIDExMsKwMjQnNDkuMiJF!5e0!3m2!1sen!2sid!4v1634567890123!5m2!1sen!2sid" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                         </div>
                         <div>
                             <p class="text-[14px] text-dark-grey leading-relaxed mb-10 font-medium">
-                                {{ $profil->alamat ?? 'Jl. Sumargo No. 12, Tlogoanyar, Kec. Lamongan, Kabupaten Lamongan, Jawa Timur 62218' }}
+                                {{ $profil->alamat ?? 'JL. Sumargo, No.19, Kec. Lamongan' }}
                             </p>
                             <div class="space-y-4">
                                  <div class="flex items-center gap-4 text-[10px] font-bold text-midnight-blue uppercase tracking-widest ">

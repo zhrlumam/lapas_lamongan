@@ -24,7 +24,7 @@
         <div class="absolute left-0 mt-0 w-60 bg-white shadow-[0_20px_50px_rgba(0,33,71,0.1)] border-t-2 border-gold-dignity opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 z-[110]">
           <a href="{{ route('profile') }}" class="block px-6 py-4 hover:bg-soft-grey hover:text-gold-dignity transition-colors border-b border-platinum font-bold text-midnight-blue">PROFIL INSTANSI</a>
           <a href="{{ route('berita.index') }}" class="block px-6 py-4 hover:bg-soft-grey hover:text-gold-dignity transition-colors border-b border-platinum font-bold text-midnight-blue">BERITA TERKINI</a>
-          <a href="{{ route('layanan') }}" class="block px-6 py-4 hover:bg-soft-grey hover:text-gold-dignity transition-colors border-b border-platinum font-bold text-midnight-blue">MAKLUMAT PELAYANAN</a>
+          <a href="{{ route('layanan') }}" class="block px-6 py-4 hover:bg-soft-grey hover:text-gold-dignity transition-colors border-b border-platinum font-bold text-midnight-blue">STANDAR PELAYANAN</a>
           <a href="{{ route('galeri') }}" class="block px-6 py-4 hover:bg-soft-grey hover:text-gold-dignity transition-colors font-bold text-midnight-blue">GALERI KEGIATAN</a>
         </div>
       </div>
@@ -59,7 +59,7 @@
         <div id="info-submenu" class="hidden bg-soft-grey/50">
           <a href="{{ route('profile') }}" class="block px-10 py-3 hover:bg-soft-grey transition text-midnight-blue font-semibold text-xs border-b border-platinum/30">PROFIL INSTANSI</a>
           <a href="{{ route('berita.index') }}" class="block px-10 py-3 hover:bg-soft-grey transition text-midnight-blue font-semibold text-xs border-b border-platinum/30">BERITA TERKINI</a>
-          <a href="{{ route('layanan') }}" class="block px-10 py-3 hover:bg-soft-grey transition text-midnight-blue font-semibold text-xs border-b border-platinum/30">MAKLUMAT PELAYANAN</a>
+          <a href="{{ route('layanan') }}" class="block px-10 py-3 hover:bg-soft-grey transition text-midnight-blue font-semibold text-xs border-b border-platinum/30">STANDAR PELAYANAN</a>
           <a href="{{ route('galeri') }}" class="block px-10 py-3 hover:bg-soft-grey transition text-midnight-blue font-semibold text-xs">GALERI KEGIATAN</a>
         </div>
       </div>

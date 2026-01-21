@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Kelola Survey Kepuasan')
-@section('page_title', 'Indeks Kepuasan Masyarakat')
+@section('page_title', 'Survey Kepuasan Masyarakat')
 
 @section('content')
 @php
@@ -14,6 +14,7 @@
     $formBulan = $editingSurvey ? $editingSurvey->bulan : ($latest ? $latest->bulan : '');
     $formIpk = $editingSurvey ? $editingSurvey->skor_ipk : ($latest ? $latest->skor_ipk : '');
     $formIkm = $editingSurvey ? $editingSurvey->skor_ikm : ($latest ? $latest->skor_ikm : '');
+    $formResponden = $editingSurvey ? $editingSurvey->jumlah_responden : ($latest ? $latest->jumlah_responden : 0);
     $formKet = $editingSurvey ? $editingSurvey->keterangan : ($latest ? $latest->keterangan : 'Baik');
     $formActive = $editingSurvey ? $editingSurvey->is_active : ($latest ? $latest->is_active : 1);
 @endphp
@@ -38,7 +39,7 @@
             </div>
             <span class="text-[10px] font-black text-white bg-emerald-500 px-2 py-0.5 rounded tracking-tighter">Terakhir</span>
         </div>
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Skor IKM Aktif</p>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Skor SKM Aktif</p>
         <p class="text-2xl font-black text-midnight-blue">{{ $latest ? number_format($latest->skor_ikm, 2) : '0.00' }}</p>
     </div>
 
@@ -49,7 +50,7 @@
             </div>
             <span class="text-[10px] font-black text-white bg-amber-500 px-2 py-0.5 rounded tracking-tighter">Avg</span>
         </div>
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Rata-rata IKM</p>
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Rata-rata SKM</p>
         <p class="text-2xl font-black text-midnight-blue">{{ number_format($avgIkm, 2) }}</p>
     </div>
 
@@ -93,18 +94,26 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Skor IPK</label>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Skor SPAK</label>
                         <div class="relative">
                             <input type="number" name="skor_ipk" step="0.01" value="{{ $formIpk }}" required placeholder="0.00" class="w-full pl-10 pr-4 py-4 bg-soft-grey border border-platinum rounded-xl focus:border-gold-dignity outline-none transition font-black text-midnight-blue">
                             <i data-lucide="target" class="w-3.5 h-3.5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Skor IKM</label>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Skor SKM</label>
                         <div class="relative">
                             <input type="number" name="skor_ikm" step="0.01" value="{{ $formIkm }}" required placeholder="0.00" class="w-full pl-10 pr-4 py-4 bg-soft-grey border border-platinum rounded-xl focus:border-gold-dignity outline-none transition font-black text-midnight-blue text-gold-dignity">
                             <i data-lucide="star" class="w-3.5 h-3.5 absolute left-4 top-1/2 -translate-y-1/2 text-gold-dignity"></i>
                         </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Jumlah Responden</label>
+                    <div class="relative">
+                        <input type="number" name="jumlah_responden" value="{{ $formResponden }}" required placeholder="0" class="w-full pl-12 pr-4 py-4 bg-soft-grey border border-platinum rounded-xl focus:border-gold-dignity outline-none transition font-black text-midnight-blue">
+                        <i data-lucide="users" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                     </div>
                 </div>
 
@@ -145,7 +154,7 @@
                 </div>
                 <h4 class="text-[11px] font-black text-midnight-blue uppercase">Panduan Skor</h4>
             </div>
-            <p class="text-[11px] text-slate-500 leading-relaxed font-bold uppercase tracking-tight">Gunakan skala 1.00 - 4.00 untuk IPK & IKM sesuai dengan pedoman pembangunan ZI Menpan RB.</p>
+            <p class="text-[11px] text-slate-500 leading-relaxed font-bold uppercase tracking-tight">Gunakan skala 1.00 - 4.00 untuk SPAK & SKM sesuai dengan pedoman pembangunan ZI Menpan RB.</p>
         </div>
     </div>
 
@@ -164,8 +173,8 @@
                     <thead>
                         <tr>
                             <th class="px-10">Periode</th>
-                            <th class="text-center">Skor IPK</th>
-                            <th class="text-center">Skor IKM</th>
+                            <th class="text-center">Skor SPAK</th>
+                            <th class="text-center">Skor SKM</th>
                             <th class="text-right">Tindakan</th>
                         </tr>
                     </thead>

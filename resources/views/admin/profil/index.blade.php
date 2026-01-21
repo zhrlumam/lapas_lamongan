@@ -26,6 +26,11 @@
                             class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-bold text-midnight-blue focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all placeholder-slate-300">
                     </div>
                     <div>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Alamat Instansi</label>
+                        <input type="text" name="alamat" value="{{ old('alamat', $profil->alamat) }}" 
+                            class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-medium text-midnight-blue focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all placeholder-slate-300">
+                    </div>
+                    <div>
                         <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Deskripsi Singkat (Hero)</label>
                         <textarea name="deskripsi_singkat" rows="4" required 
                             class="w-full px-4 py-3 bg-soft-grey border border-platinum rounded text-[13px] font-medium text-slate-600 focus:ring-1 focus:ring-gold-dignity focus:border-gold-dignity outline-none transition-all placeholder-slate-300 leading-relaxed">{{ old('deskripsi_singkat', $profil->deskripsi_singkat) }}</textarea>
